@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Umfrageseite</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Umfrageseite</h1>
+    {% if umfragen %}
+    <ul>
+        {% for umfrage in umfragen %}
+        <li> {{ umfrage.name }} </li>
+        {% if umfrage.choice_set.all %}
+            <ul>
+                {% for antwort in umfrage.choice_set.all %}
+                <li> {{ antwort.name }} </li>
+                {% endfor %}
+            </ul>
+        {% endif%}
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+</html>

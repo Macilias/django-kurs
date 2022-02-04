@@ -2,6 +2,14 @@
 {% block content %}
 {% if umfrage %}
 <h1>{{ umfrage.name }}</h1>
+<h2>Antwortmöglichkeiten</h2>
+{% if umfrage.choice_set.all %}
+<ul>
+    {% for antwort in umfrage.choice_set.all %}
+    <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
+    {% endfor %}
+</ul>
+{% endif %}
 {% else %}
 <h1>Es konnte keine Umfrage ausgegeben werden</h1>
 {% endif %}

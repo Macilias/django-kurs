@@ -9,7 +9,7 @@
 {% if umfragen %}
 <ul>
     {% for umfrage in umfragen %}
-    <li><a href="">{{ umfrage.name }}</a></li>
+    <li><a href="abstimmung/{{ umfrage.slug }}">{{ umfrage.name }}</a></li>
     {% endfor %}
 </ul>
 {% endif %}

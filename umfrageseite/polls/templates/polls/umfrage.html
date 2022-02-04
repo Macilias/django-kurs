@@ -1,5 +1,8 @@
 {% extends 'polls/base.html' %}
 {% block content %}
+{% if umfrage %}
 <h1>{{ umfrage.name }}</h1>
+{% else %}
+<h1>Es konnte keine Umfrage ausgegeben werden</h1>
 {% endif %}
 {% endblock %}

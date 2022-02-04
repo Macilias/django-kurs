@@ -4,11 +4,13 @@
 <h1>{{ umfrage.name }}</h1>
 <h2>Antwortmöglichkeiten</h2>
 {% if umfrage.choice_set.all %}
-<ul>
-    {% for antwort in umfrage.choice_set.all %}
-    <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
+<form action="{% url 'vote' umfrage.slug %}" method="post">
+    {% for choice in umfrage.choice_set.all %}
+    <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>
+    <label> {{ choice.name }}</label>
     {% endfor %}
-</ul>
+    <input type="submit" value="Antwort absenden">
+</form>
 {% else %}
 <p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
 {% endif %}

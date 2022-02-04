@@ -9,6 +9,8 @@
     <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
     {% endfor %}
 </ul>
+{% else %}
+<p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
 {% endif %}
 {% else %}
 <h1>Es konnte keine Umfrage ausgegeben werden</h1>

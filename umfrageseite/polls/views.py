@@ -7,6 +7,6 @@ def index(request):
     result = ''
     for poll in Poll.objects.all():
         result += ' </br> '
-        result += f'{poll.name} ({", ".join(str(c.name) for c in poll.choice_set.all()) })'
+        result += f'{poll.name} ({", ".join(c.name for c in poll.choice_set.all()) })'
 
     return HttpResponse(result)

@@ -5,6 +5,7 @@
 <h2>Antwortmöglichkeiten</h2>
 {% if umfrage.choice_set.all %}
 <form action="{% url 'vote' umfrage.slug %}" method="post">
+    {% csrf_token %}
     {% for choice in umfrage.choice_set.all %}
     <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>
     <label> {{ choice.name }}</label>

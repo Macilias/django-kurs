@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from .models import Poll, Choice
 
 
@@ -22,5 +23,9 @@ def vote(request, slug):
     else:
         selected.votes += 1
         selected.save()
-        return HttpResponse("Super, du hast abgestimmt!")
+        return HttpResponseRedirect(reverse('results', args=(umfrage, slug, )))
 
+
+def results(request, slug):
+    context = {'umfrage': get_object_or_404(Poll, slug=slug)}
+    return render(request=request, template_name='polls/results.html', context=context)

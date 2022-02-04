@@ -28,7 +28,7 @@
         {% if umfrage.choice_set.all %}
         <ul>
             {% for antwort in umfrage.choice_set.all %}
-            <li> {{ antwort.name }}</li>
+            <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
             {% endfor %}
         </ul>
         {% endif%}

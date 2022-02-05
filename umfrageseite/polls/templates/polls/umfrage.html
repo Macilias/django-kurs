@@ -3,6 +3,7 @@
 {% if umfrage %}
 <h1>{{ umfrage.name }}</h1>
 <h2>Antwortmöglichkeiten</h2>
+<a href="{% url 'index' %}">Zurück</a>
 {% if umfrage.choice_set.all %}
 <form action="{% url 'vote' umfrage.slug %}" method="post">
     {% csrf_token %}

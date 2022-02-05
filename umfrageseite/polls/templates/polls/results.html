@@ -12,7 +12,11 @@
 {% if umfrage.choice_set.all %}
 <ul>
     {% for antwort in umfrage.choice_set.all %}
-    <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
+    {% if antwort.votes == 1 %}
+        <li> {{ antwort.name }} ({{ antwort.votes }} vote)</li>
+    {% else %}
+        <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
+    {% endif%}
     {% endfor %}
 </ul>
 {% endif%}

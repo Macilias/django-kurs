@@ -23,8 +23,14 @@ def vote(request, slug):
     else:
         selected.votes += 1
         selected.save()
-        #return HttpResponseRedirect(reverse('results', args=(umfrage, slug, )))
-        return render(request=request, template_name='polls/results.html', context={'umfrage': umfrage})
+        # from tutorial:
+        # return HttpResponseRedirect(reverse('results', args=(umfrage, slug, )))
+        # alternative:
+        return HttpResponseRedirect(reverse('results', args=(umfrage.slug, )))
+        # from repo:
+        # return HttpResponseRedirect(reverse('polls:results', args=(umfrage.slug,)))
+        # workaround:
+        # return render(request=request, template_name='polls/results.html', context={'umfrage': umfrage})
 
 
 def results(request, slug):

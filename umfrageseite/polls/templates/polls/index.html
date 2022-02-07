@@ -1,5 +1,7 @@
 {% extends 'polls/base.html' %}
+{% load static %}
 {% block content %}
+<img src="{% static 'polls/ballot.png' %}" style="float: right;" alt="Vote" />
 <h1>Umfrageseite</h1>
 <p class="lead">
     Herzlich willkommen auf der Abstimmungsseite für meine Umfragen! Hier könnt Ihr einfach abstimmen!

@@ -9,8 +9,22 @@
 {% if umfragen %}
 <ul>
     {% for umfrage in umfragen %}
-    <li><a href="{% url 'polls:umfrage-detail' umfrage.slug %}">{{ umfrage.name }}</a></li>
+        {% if umfrage.is_active %}
+            <li><a href="{% url 'polls:umfrage-detail' umfrage.slug %}">{{ umfrage.name }}</a></li>
+        {% endif %}
     {% endfor %}
 </ul>
 {% endif %}
+
+<h4>Abgeschlossene Umfragen</h4>
+{% if umfragen %}
+<ul>
+    {% for umfrage in umfragen %}
+        {% if not umfrage.is_active %}
+            <li><a href="{% url 'polls:results' umfrage.slug %}">{{ umfrage.name }}</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% endblock %}

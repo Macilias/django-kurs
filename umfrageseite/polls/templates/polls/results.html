@@ -4,10 +4,16 @@
     <h1>{{ object.name }}</h1>
     <h2>Ergebnis</h2>
     <a href="{% url 'polls:index' %}">Zurück</a>
-    {% if access %}
+    {% if access or not object.is_active %}
+        {% if access %}
         <p class="lead">
             Vielen Dank, dass Du abgestimmt hast!
         </p>
+        {% else %}
+        <p class="lead">
+            Du hast an dieser Umfrage nicht teilgenommen.
+        </p>
+        {% endif %}
         {% if object.choice_set.all %}
             <li> {{ object.name }}</li>
             {% if object.choice_set.all %}

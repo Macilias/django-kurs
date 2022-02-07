@@ -5,8 +5,14 @@
 <h2>Antwortmöglichkeiten</h2>
 <a href="{% url 'polls:index' %}">Zurück</a>
 
-{% if not voted and object.is_active%}
+{% for message in messages %}
+<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
 
+{% if not voted and object.is_active%}
 {% if object.choice_set.all %}
 <form action="{% url 'polls:vote' object.slug %}" method="post">
     {% csrf_token %}

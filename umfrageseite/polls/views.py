@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
+from django.contrib import messages
 
 from .models import Poll, Choice
 
@@ -46,7 +47,9 @@ def vote(request, slug):
     try:
         selected = umfrage.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
-        return HttpResponse("Fehler: es wurde keine bzw. eine ungültige Antwort ausgeählt!")
+        messages.error(request, "Fehler: es wurde keine bzw. eine ungültige Antwort ausgeählt!")
+        return HttpResponseRedirect(reverse('polls:umfrage-detail', args=(umfrage.slug,)))
+
     else:
         selected.votes += 1
         selected.save()

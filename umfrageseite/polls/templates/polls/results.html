@@ -1,17 +1,17 @@
 {% extends 'polls/base.html' %}
 {% block content %}
-{% if umfrage %}
-<h1>{{ umfrage.name }}</h1>
+{% if object %}
+<h1>{{ object.name }}</h1>
 <h2>Ergebnis</h2>
 <p class="lead">
     Vielen Dank, dass Du abgestimmt hast!
 </p>
 <a href="{% url 'index' %}">Zurück</a>
-{% if umfrage.choice_set.all %}
-<li> {{ umfrage.name }}</li>
-{% if umfrage.choice_set.all %}
+{% if object.choice_set.all %}
+<li> {{ object.name }}</li>
+{% if object.choice_set.all %}
 <ul>
-    {% for antwort in umfrage.choice_set.all %}
+    {% for antwort in object.choice_set.all %}
     {% if antwort.votes == 1 %}
         <li> {{ antwort.name }} ({{ antwort.votes }} vote)</li>
     {% else %}

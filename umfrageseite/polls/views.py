@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
+from django.views import generic
+
 from .models import Poll, Choice
 
 
@@ -9,9 +11,14 @@ def index(request):
     return render(request=request, template_name='polls/index.html', context=context)
 
 
-def umfrage_detail(request, slug):
-    context = {'umfrage': get_object_or_404(Poll, slug=slug)}
-    return render(request=request, template_name='polls/umfrage.html', context=context)
+class PollDetailView(generic.DetailView):
+    model = Poll
+    template_name = 'polls/umfrage.html'
+
+
+class ResultsDetailView(generic.DetailView):
+    model = Poll
+    template_name = 'polls/results.html'
 
 
 def vote(request, slug):
@@ -23,16 +30,4 @@ def vote(request, slug):
     else:
         selected.votes += 1
         selected.save()
-        # from tutorial:
-        # return HttpResponseRedirect(reverse('results', args=(umfrage, slug, )))
-        # alternative:
-        return HttpResponseRedirect(reverse('results', args=(umfrage.slug, )))
-        # from repo:
-        # return HttpResponseRedirect(reverse('polls:results', args=(umfrage.slug,)))
-        # workaround:
-        # return render(request=request, template_name='polls/results.html', context={'umfrage': umfrage})
-
-
-def results(request, slug):
-    context = {'umfrage': get_object_or_404(Poll, slug=slug)}
-    return render(request=request, template_name='polls/results.html', context=context)
+        return HttpResponseRedirect(reverse('results', args=(umfrage.slug,)))

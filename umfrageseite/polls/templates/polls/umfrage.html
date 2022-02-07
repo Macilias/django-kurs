@@ -4,18 +4,26 @@
 <h1>{{ object.name }}</h1>
 <h2>Antwortmöglichkeiten</h2>
 <a href="{% url 'polls:index' %}">Zurück</a>
-{% if object.choice_set.all %}
-<form action="{% url 'polls:vote' object.slug %}" method="post">
-    {% csrf_token %}
-    {% for choice in object.choice_set.all %}
-    <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>
-    <label> {{ choice.name }}</label>
-    {% endfor %}
-    <input type="submit" value="Antwort absenden">
-</form>
+
+{% if not voted %}
+
+    {% if object.choice_set.all %}
+    <form action="{% url 'polls:vote' object.slug %}" method="post">
+        {% csrf_token %}
+            {% for choice in object.choice_set.all %}
+                <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>
+                <label> {{ choice.name }}</label>
+            {% endfor %}
+        <input type="submit" value="Antwort absenden">
+    </form>
+    {% else %}
+    <p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
+    {% endif %}
+
 {% else %}
-<p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
+<h3>Du hast bereits abgestimmt und kannst dir <a href="{% url 'polls:results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
 {% endif %}
+
 {% else %}
 <h1>Es konnte keine Umfrage ausgegeben werden</h1>
 {% endif %}

@@ -1,29 +1,33 @@
 {% extends 'polls/base.html' %}
 {% block content %}
 {% if object %}
-<h1>{{ object.name }}</h1>
-<h2>Ergebnis</h2>
-<p class="lead">
-    Vielen Dank, dass Du abgestimmt hast!
-</p>
-<a href="{% url 'polls:index' %}">Zurück</a>
-{% if object.choice_set.all %}
-<li> {{ object.name }}</li>
-{% if object.choice_set.all %}
-<ul>
-    {% for antwort in object.choice_set.all %}
-    {% if antwort.votes == 1 %}
-        <li> {{ antwort.name }} ({{ antwort.votes }} vote)</li>
+    <h1>{{ object.name }}</h1>
+    <h2>Ergebnis</h2>
+    <a href="{% url 'polls:index' %}">Zurück</a>
+    {% if access %}
+        <p class="lead">
+            Vielen Dank, dass Du abgestimmt hast!
+        </p>
+        {% if object.choice_set.all %}
+            <li> {{ object.name }}</li>
+            {% if object.choice_set.all %}
+                <ul>
+                {% for antwort in object.choice_set.all %}
+                    {% if antwort.votes == 1 %}
+                        <li> {{ antwort.name }} ({{ antwort.votes }} vote)</li>
+                    {% else %}
+                        <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
+                    {% endif%}
+                {% endfor %}
+                </ul>
+            {% endif%}
+        {% else %}
+            <p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
+        {% endif %}
     {% else %}
-        <li> {{ antwort.name }} ({{ antwort.votes }} votes)</li>
-    {% endif%}
-    {% endfor %}
-</ul>
-{% endif%}
+        <h3>Fehler: Umfrageergebnisse können nur angesehen werden, wenn vorher abgestimmt wurde!</h3>
+    {% endif %}
 {% else %}
-<p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
-{% endif %}
-{% else %}
-<h1>Es konnte keine Umfrage ausgegeben werden</h1>
+    <h1>Es konnte keine Umfrage ausgegeben werden</h1>
 {% endif %}
 {% endblock %}

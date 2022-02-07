@@ -30,4 +30,4 @@ def vote(request, slug):
     else:
         selected.votes += 1
         selected.save()
-        return HttpResponseRedirect(reverse('results', args=(umfrage.slug,)))
+        return HttpResponseRedirect(reverse('polls:results', args=(umfrage.slug,)))

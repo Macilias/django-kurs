@@ -3,9 +3,9 @@
 {% if object %}
 <h1>{{ object.name }}</h1>
 <h2>Antwortmöglichkeiten</h2>
-<a href="{% url 'index' %}">Zurück</a>
+<a href="{% url 'polls:index' %}">Zurück</a>
 {% if object.choice_set.all %}
-<form action="{% url 'vote' object.slug %}" method="post">
+<form action="{% url 'polls:vote' object.slug %}" method="post">
     {% csrf_token %}
     {% for choice in object.choice_set.all %}
     <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>

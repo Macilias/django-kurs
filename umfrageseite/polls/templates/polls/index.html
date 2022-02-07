@@ -9,7 +9,7 @@
 {% if umfragen %}
 <ul>
     {% for umfrage in umfragen %}
-    <li><a href="{% url 'umfrage-detail' umfrage.slug %}">{{ umfrage.name }}</a></li>
+    <li><a href="{% url 'polls:umfrage-detail' umfrage.slug %}">{{ umfrage.name }}</a></li>
     {% endfor %}
 </ul>
 {% endif %}

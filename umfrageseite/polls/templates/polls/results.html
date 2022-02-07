@@ -6,7 +6,7 @@
 <p class="lead">
     Vielen Dank, dass Du abgestimmt hast!
 </p>
-<a href="{% url 'index' %}">Zurück</a>
+<a href="{% url 'polls:index' %}">Zurück</a>
 {% if object.choice_set.all %}
 <li> {{ object.name }}</li>
 {% if object.choice_set.all %}

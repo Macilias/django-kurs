@@ -52,7 +52,9 @@ def vote(request, slug):
         selected.save()
         if 'voted_polls' in request.session:
             if type(request.session['voted_polls']) == list:
-                request.session['voted_polls'].append(umfrage.id)
+                voted_polls = request.session['voted_polls']
+                voted_polls.append(umfrage.id)
+                request.session['voted_polls'] = voted_polls
             else:
                 request.session['voted_polls'] = [umfrage.id]
         else:

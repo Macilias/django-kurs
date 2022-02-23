@@ -1,9 +1,9 @@
-{% extends 'polls/base.html' %}
+{% extends 'suena1K/base.html' %}
 {% block content %}
 {% if object %}
 <h1>{{ object.name }}</h1>
 <h2>Antwortmöglichkeiten</h2>
-<a href="{% url 'polls:index' %}">Zurück</a>
+<a href="{% url 'index' %}">Zurück</a>
 
 {% for message in messages %}
 <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
@@ -14,7 +14,7 @@
 
 {% if not voted and object.is_active%}
 {% if object.choice_set.all %}
-<form action="{% url 'polls:vote' object.slug %}" method="post">
+<form action="{% url 'vote' object.slug %}" method="post">
     {% csrf_token %}
     {% for choice in object.choice_set.all %}
     <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>
@@ -28,7 +28,7 @@
 
 {% else %}
 <h3>Die Umfrage is abgehlaufen oder du hast bereits abgestimmt und kannst dir <a
-        href="{% url 'polls:results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
+        href="{% url 'results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
 {% endif %}
 
 {% else %}

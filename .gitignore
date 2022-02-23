@@ -1,4 +1,4 @@
 .DS_Store
 .idea/
 env/
-umfrageseite/db.sqlite3
+db.sqlite3

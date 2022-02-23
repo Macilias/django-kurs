@@ -19,11 +19,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import index
+from .views import index, GameDetailView, play, ResultsDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name="index"),
+    path('<str:slug>/', GameDetailView.as_view(), name="game"),
+    path('<str:slug>/play/', play, name="vote"),
+    path('<str:slug>/results/', ResultsDetailView.as_view(), name="results"),
 ]
 
 if settings.DEBUG:

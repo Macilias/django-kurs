@@ -1,9 +1,9 @@
-{% extends 'polls/base.html' %}
+{% extends 'suena1K/base.html' %}
 {% block content %}
 {% if object %}
     <h1>{{ object.name }}</h1>
     <h2>Ergebnis</h2>
-    <a href="{% url 'polls:index' %}">Zurück</a>
+    <a href="{% url 'index' %}">Zurück</a>
     {% if access or not object.is_active %}
         {% if access %}
         <p class="lead">

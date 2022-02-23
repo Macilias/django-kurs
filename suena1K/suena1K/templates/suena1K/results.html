@@ -7,11 +7,11 @@
     {% if access or not object.is_active %}
         {% if access %}
         <p class="lead">
-            Vielen Dank, dass Du abgestimmt hast!
+            Vielen Dank, dass Du mitgespielt hast!
         </p>
         {% else %}
         <p class="lead">
-            Du hast an dieser Umfrage nicht teilgenommen.
+            Du hast an diesen Spiel nicht teilgenommen.
         </p>
         {% endif %}
         {% if object.choice_set.all %}
@@ -28,12 +28,12 @@
                 </ul>
             {% endif%}
         {% else %}
-            <p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
+            <p>Leider wurde noch keine Ergebnis hinterlegt</p>
         {% endif %}
     {% else %}
-        <h3>Fehler: Umfrageergebnisse können nur angesehen werden, wenn vorher abgestimmt wurde!</h3>
+        <h3>Fehler: Spielergebnisse können nur angesehen werden, wenn man mitgespielt hat!</h3>
     {% endif %}
 {% else %}
-    <h1>Es konnte keine Umfrage ausgegeben werden</h1>
+    <h1>Es konnte kein Spiel gefunden werden</h1>
 {% endif %}
 {% endblock %}

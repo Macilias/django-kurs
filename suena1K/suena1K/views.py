@@ -19,8 +19,8 @@ class GameDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_is_player = False
-        if 'registered_for_game' in self.request.session:
-            if context['object'].id in self.request.session['registered_for_game']:
+        if 'registered_for_games' in self.request.session:
+            if context['object'].id in self.request.session['registered_for_games']:
                 user_is_player = True
 
         context['registered'] = user_is_player
@@ -34,12 +34,32 @@ class ResultsDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_is_player = False
-        if 'registered_for_game' in self.request.session:
-            if context['object'].id in self.request.session['registered_for_game']:
+        if 'registered_for_games' in self.request.session:
+            if context['object'].id in self.request.session['registered_for_games']:
                 user_is_player = True
 
         context['access'] = user_is_player
         return context
+
+
+def register(request, slug):
+    game = get_object_or_404(Game, slug=slug)
+    name = request.POST['name']
+    new_player = Player(game=game, name=name)
+    new_player.save()
+    request.session['registered'] = True
+
+    if 'registered_for_games' in request.session:
+        if type(request.session['registered_for_games']) == list:
+            registered_for_games = request.session['registered_for_games']
+            registered_for_games.append(game.id)
+            request.session['registered_for_games'] = registered_for_games
+        else:
+            request.session['registered_for_games'] = [game.id]
+    else:
+        request.session['registered_for_games'] = [game.id]
+
+    return HttpResponseRedirect(reverse('game', args=(game.slug,)))
 
 
 def play(request, slug):
@@ -50,20 +70,11 @@ def play(request, slug):
         selected = player.card_set.get(card)
     except (KeyError, Card.DoesNotExist):
         messages.error(request, "Fehler: es wurde keine bzw. eine ungültige Karte ausgeählt!")
-        return HttpResponseRedirect(reverse('suena1K:game', args=(game.slug,)))
+        return HttpResponseRedirect(reverse('game', args=(game.slug,)))
 
     else:
         pass
         # selected.votes += 1
         # selected.save()
-        # if 'voted_polls' in request.session:
-        #     if type(request.session['voted_polls']) == list:
-        #         voted_polls = request.session['voted_polls']
-        #         voted_polls.append(umfrage.id)
-        #         request.session['voted_polls'] = voted_polls
-        #     else:
-        #         request.session['voted_polls'] = [umfrage.id]
-        # else:
-        #     request.session['voted_polls'] = [umfrage.id]
         #
         return HttpResponseRedirect(reverse('suena1K:results', args=(game.slug,)))

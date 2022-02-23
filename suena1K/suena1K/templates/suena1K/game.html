@@ -1,8 +1,7 @@
 {% extends 'suena1K/base.html' %}
 {% block content %}
 {% if object %}
-<h1>{{ object.name }}</h1>
-<h2>Antwortmöglichkeiten</h2>
+<h1>Spiel {{ object.name }}</h1>
 <a href="{% url 'index' %}">Zurück</a>
 
 {% for message in messages %}
@@ -12,26 +11,44 @@
 </div>
 {% endfor %}
 
-{% if not voted and object.is_active%}
-{% if object.choice_set.all %}
-<form action="{% url 'vote' object.slug %}" method="post">
-    {% csrf_token %}
-    {% for choice in object.choice_set.all %}
-    <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>
-    <label> {{ choice.name }}</label>
-    {% endfor %}
-    <input type="submit" value="Antwort absenden">
-</form>
+{% if object.is_active %}
+    {% if object.is_started %}
+        {% if not registered %}
+            <h3>Das Spiel ist bereits gestartet, leider kannst du nicht mehr mitmachen, sorry.</h3>
+        {% else %}
+            <h3>SPIELEN</h3>
+            <form action="{% url 'vote' object.slug %}" method="post">
+                {% csrf_token %}
+                {% for choice in object.player_set.all %}
+                    <input type="radio" name="choice" value={{ choice.id }} id="choice{{ forloop.counter }}"/>
+                    <label> {{ choice.name }}</label>
+                {% endfor %}
+                <input type="submit" value="Antwort absenden">
+            </form>
+        {% endif %}
+    {% else %}
+        {% if not registered %}
+            <form action="{% url 'register' object.slug %}" method="post">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="wie heisst du?"/>
+                <label>Spiele mit uns {{ object.player_set.all|length }}</label>
+                <input type="submit" value="Mitspielen">
+            </form>
+        {% else %}
+            {% if object.player_set.all|length > 1 and object.player_set.all|length < 5 %}
+                <p>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
+                    {{ object.player_set.all|length }}</p>
+            {% else %}
+                <p>Warte auf weitere Mitspieler</p>
+            {% endif %}
+        {% endif %}
+    {% endif %}
 {% else %}
-<p>Leider wurde noch keine Antwortmöglichkeit hinterlegt</p>
-{% endif %}
-
-{% else %}
-<h3>Die Umfrage is abgehlaufen oder du hast bereits abgestimmt und kannst dir <a
+<h3>Das Spiel ist nicht mehr aktiv. Wenn du mitgespielt hast kannst du dir <a
         href="{% url 'results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
 {% endif %}
 
 {% else %}
-<h1>Es konnte keine Umfrage ausgegeben werden</h1>
+<h1>Es konnte kein Spiel gefunden werden</h1>
 {% endif %}
 {% endblock %}

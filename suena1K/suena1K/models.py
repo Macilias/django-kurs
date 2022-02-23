@@ -27,13 +27,17 @@ class Game(models.Model):
     slug = models.SlugField(unique=True)
     time = models.DateTimeField()
     round_number = models.IntegerField(default=0)
-    running = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
+    started = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} ({self.slug})"
 
     def is_active(self):
-        return self.running
+        return self.active
+
+    def is_started(self):
+        return self.started
 
 
 class Card(models.Model):

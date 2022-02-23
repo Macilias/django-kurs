@@ -1,0 +1,32 @@
+{% extends 'suena1K/base.html' %}
+{% load static %}
+{% block content %}
+<img src="{% static 'suena1K/ballot.png' %}" style="float: right;" alt="Vote" />
+<h1>suena 1K</h1>
+<p class="lead">
+    Herzlich bei suena 1K, spilen Sie ein mal den Energiehandel nach. Der erste Spieler der 1000 Punkte bekommt gewinnt!
+</p>
+<hr/>
+<h4>Aktuell laufende Spiele</h4>
+{% if games %}
+<ul>
+    {% for game in games %}
+        {% if game.is_active %}
+            <li><a href="{% url 'suena1K:game' game.slug %}">{{ game.name }}</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+
+<h4>Abgeschlossene Spiele</h4>
+{% if games %}
+<ul>
+    {% for game in games %}
+        {% if not game.is_active %}
+            <li><a href="{% url 'suena1K:results' game.slug %}">{{ game.name }}</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}

@@ -53,8 +53,6 @@ class Card(models.Model):
 
 
 class CardHolder(models.Model):
-    # class Meta:
-    #     abstract = True
     pass
 
 

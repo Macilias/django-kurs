@@ -1,7 +1,9 @@
 {% extends 'suena1K/base.html' %}
 {% load static %}
 {% block content %}
-<img src="{% static 'suena1K/ballot.png' %}" style="float: right;" alt="Vote" />
+<div class="lead">
+    <img src="{% static 'suena1K/suena_logo.png' %}" style="float: right;"/>
+</div>
 <h1>suena 1K</h1>
 <p class="lead">
     Herzlich willkommen bei suena 1K! Spilen Sie einmal den Energiehandel nach. Der erste Spieler der 1000 Punkte bekommt gewinnt!
@@ -28,5 +30,4 @@
     {% endfor %}
 </ul>
 {% endif %}
-
 {% endblock %}

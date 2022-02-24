@@ -43,10 +43,10 @@
 </form>
 {% else %}
 {% if object.player_set.all|length > 1 and object.player_set.all|length < 5 %}
-<p>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
-    {{ object.player_set.all|length }}</p>
+<h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
+    {{ object.player_set.all|length }}</h3>
 {% else %}
-<p>Warte auf weitere Mitspieler</p>
+<h3>Warte auf weitere Mitspieler</h3>
 {% endif %}
 {% endif %}
 {% endif %}

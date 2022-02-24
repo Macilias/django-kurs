@@ -6,16 +6,17 @@
 </div>
 <h1>suena 1K</h1>
 <p class="lead">
-    Herzlich willkommen bei suena 1K! Spilen Sie einmal den Energiehandel nach. Der erste Spieler der 1000 Punkte bekommt gewinnt!
+    Herzlich willkommen bei suena 1K! Spilen Sie einmal den Energiehandel nach. Der erste Spieler der 1000 Punkte
+    bekommt gewinnt!
 </p>
 <hr/>
 <h4>Aktuell laufende Spiele</h4>
 {% if games %}
 <ul>
     {% for game in games %}
-        {% if game.is_active %}
-            <li><a href="{% url 'game' game.slug %}">{{ game.name }}</a></li>
-        {% endif %}
+    {% if game.is_active %}
+    <li><a href="{% url 'game' game.slug %}">{{ game.name }}</a></li>
+    {% endif %}
     {% endfor %}
 </ul>
 {% endif %}
@@ -24,13 +25,42 @@
 {% if games %}
 <ul>
     {% for game in games %}
-        {% if not game.is_active %}
-            <li><a href="{% url 'results' game.slug %}">{{ game.name }}</a></li>
-        {% endif %}
+    {% if not game.is_active %}
+    <li><a href="{% url 'results' game.slug %}">{{ game.name }}</a></li>
+    {% endif %}
     {% endfor %}
 </ul>
 <div>
-    <button type="button" class="btn btn-primary" style="float: right;">Neues Spiel</button>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+            style="float: right;">
+        Neues Spiel
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Wähle einen Namen für das Spiel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'new_game' %}" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">Name:</label>
+                            <textarea class="form-control" id="message-text" name="name"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Doch nicht</button>
+                            <button type="submit" class="btn btn-primary">Neues Spiel erstellen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}
 {% endblock %}

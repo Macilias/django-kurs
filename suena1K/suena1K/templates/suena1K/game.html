@@ -33,9 +33,9 @@
 <form action="{% url 'register' object.slug %}" method="post">
     {% csrf_token %}
     <div class="input-group mb-3">
-                  <span class="input-group-text" id="basic-addon1">
-                      Spieler Anzahl {{ object.player_set.all|length }}
-                  </span>
+        <span class="input-group-text" id="basic-addon1">
+          Spieler Anzahl {{ object.player_set.all|length }}
+        </span>
         <input type="text" class="form-control" placeholder="wie heisst du?" aria-label="Username"
                aria-describedby="basic-addon1" name="name">
         <input type="submit" value="Mitspielen" class="btn btn-primary">

@@ -25,7 +25,7 @@ class Round(models.Model):
 class Game(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    time = models.DateTimeField()
+    time = models.DateTimeField(null=True)
     round_number = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     started = models.BooleanField(default=False)

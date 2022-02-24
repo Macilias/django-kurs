@@ -42,6 +42,17 @@ class ResultsDetailView(generic.DetailView):
         return context
 
 
+def new_game(request):
+    name = request.POST['name']
+    print(f"about to start new game called {name}")
+    encoded_string = name.encode("ascii", "ignore")
+    decode_string = encoded_string.decode()
+    slug = '-'.join(decode_string.split())
+    game = Game(name=name, slug=slug)
+    game.save()
+    return HttpResponseRedirect(reverse('game', args=(game.slug,)))
+
+
 def register(request, slug):
     game = get_object_or_404(Game, slug=slug)
     name = request.POST['name']

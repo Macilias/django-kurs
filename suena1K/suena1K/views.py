@@ -44,12 +44,24 @@ class ResultsDetailView(generic.DetailView):
 
 def new_game(request):
     name = request.POST['name']
-    print(f"about to start new game called {name}")
+    print(f"creating new game called {name}")
     encoded_string = name.encode("ascii", "ignore")
     decode_string = encoded_string.decode()
     slug = '-'.join(decode_string.split())
     game = Game(name=name, slug=slug)
     game.save()
+    return HttpResponseRedirect(reverse('game', args=(game.slug,)))
+
+
+def start_game(request, slug):
+    game = get_object_or_404(Game, slug=slug)
+    user_name = request.POST['user_name']
+    if not game.is_started():
+        print(f"starting new game called {game.name} by {user_name}")
+        game.started = True
+        game.save()
+        # add notification for other users about who started the game
+
     return HttpResponseRedirect(reverse('game', args=(game.slug,)))
 
 

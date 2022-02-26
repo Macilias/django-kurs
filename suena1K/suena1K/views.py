@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 from django.contrib import messages
+from django.forms.models import model_to_dict
 
 from .models import Card, CardHolder, GlobalCardDeck, Game, Player, Round, Table
 
@@ -55,12 +56,15 @@ def new_game(request):
 
 def start_game(request, slug):
     game = get_object_or_404(Game, slug=slug)
-    user_name = request.POST['user_name']
+    player = request.session['player']
+    message = request.POST['message']
     if not game.is_started():
-        print(f"starting new game called {game.name} by {user_name}")
+        print(f"starting new game called {game.name} by {player.get('name')}")
         game.started = True
         game.save()
         # add notification for other users about who started the game
+        full_message = f"Er sagt: {message}"
+        messages.info(request, f"Das Spiel wurde von {player.get('name')} gestartet. {full_message if message else ''}")
 
     return HttpResponseRedirect(reverse('game', args=(game.slug,)))
 
@@ -71,6 +75,7 @@ def register(request, slug):
     new_player = Player(game=game, name=name)
     new_player.save()
     request.session['registered'] = True
+    request.session['player'] = model_to_dict(new_player)
 
     if 'registered_for_games' in request.session:
         if type(request.session['registered_for_games']) == list:
@@ -88,7 +93,7 @@ def register(request, slug):
 def play(request, slug):
     game = get_object_or_404(Game, slug=slug)
     card = Card.objects.get(pk=request.POST['choice'])
-    player = Player.objects.get(pk=request.POST['player'])
+    player = Player.objects.get(pk=request.POST['player'].pk)
     try:
         selected = player.card_set.get(card)
     except (KeyError, Card.DoesNotExist):

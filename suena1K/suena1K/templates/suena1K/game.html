@@ -18,14 +18,14 @@
 <h3>Das Spiel ist bereits gestartet, leider kannst du nicht mehr mitmachen, sorry.</h3>
 {% else %}
 <h3>SPIELEN</h3>
-<form action="{% url 'vote' object.slug %}" method="post">
+<form action="{% url 'play' object.slug %}" method="post">
     {% csrf_token %}
-    {% for choice in object.player_set.all %}
-    <input type="radio" name="choice" value={{ choice.id }} class="input-group-text"
-           id="choice{{ forloop.counter }}"/>
-    <label> {{ choice.name }}</label>
-    {% endfor %}
-    <input type="submit" value="Antwort absenden">
+<!--    {% for choice in object.player_set.all %}-->
+<!--    <input type="radio" name="choice" value={{ choice.id }} class="input-group-text"-->
+<!--           id="choice{{ forloop.counter }}"/>-->
+<!--    <label> {{ choice.name }}</label>-->
+<!--    {% endfor %}-->
+<!--    <input type="submit" value="Antwort absenden">-->
 </form>
 {% endif %}
 {% else %}
@@ -68,6 +68,7 @@
                             <label for="message-text" class="col-form-label">Nachricht an alle:</label>
                             <textarea class="form-control" id="message-text" name="message"></textarea>
                         </div>
+                        <input type="hidden" value="{{ variable }}" name="user_name">
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Doch nicht</button>
                             <button type="submit" class="btn btn-primary">Spiel starten</button>

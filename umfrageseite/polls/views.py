@@ -47,7 +47,7 @@ def vote(request, slug):
     try:
         selected = umfrage.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
-        messages.error(request, "Fehler: es wurde keine bzw. eine ungültige Antwort ausgeählt!")
+        messages.error(request, "Fehler: es wurde keine bzw. eine ungültige Antwort ausgewählt!")
         return HttpResponseRedirect(reverse('polls:umfrage-detail', args=(umfrage.slug,)))
 
     else:

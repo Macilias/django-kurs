@@ -15,7 +15,12 @@
 <ul>
     {% for game in games %}
     {% if game.is_active %}
-    <li><a href="{% url 'game' game.slug %}">{{ game.name }} ({{ object.player_set.all|length }})</a></li>
+    <li>
+        <a href="{% url 'game' game.slug %}">
+            Anzahl Spieler: {{ game.player_set.all|length }} Status: {% if game.is_started %} Gestartet
+            {% else %} In Anmeldung {% endif %} | Name: {{ game.name }}
+        </a>
+    </li>
     {% endif %}
     {% endfor %}
 </ul>
@@ -26,7 +31,11 @@
 <ul>
     {% for game in games %}
     {% if not game.is_active %}
-    <li><a href="{% url 'results' game.slug %}">{{ game.name }} ({{ object.player_set.all|length }})</a></li>
+    <li>
+        <a href="{% url 'game' game.slug %}">
+            Anzahl Spieler: {{ game.player_set.all|length }} | Name: {{ game.name }}
+        </a>
+    </li>
     {% endif %}
     {% endfor %}
 </ul>

@@ -10,12 +10,12 @@ from .models import Card, CardHolder, GlobalCardDeck, Game, Player, Round, Table
 
 def index(request):
     context = {'games': Game.objects.all()}
-    return render(request=request, template_name='suena1K/index.html', context=context)
+    return render(request=request, template_name='suena1M/index.html', context=context)
 
 
 class GameDetailView(generic.DetailView):
     model = Game
-    template_name = 'suena1K/game.html'
+    template_name = 'suena1M/game.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,7 +30,7 @@ class GameDetailView(generic.DetailView):
 
 class ResultsDetailView(generic.DetailView):
     model = Game
-    template_name = 'suena1K/results.html'
+    template_name = 'suena1M/results.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -105,4 +105,4 @@ def play(request, slug):
         # selected.votes += 1
         # selected.save()
         #
-        return HttpResponseRedirect(reverse('suena1K:results', args=(game.slug,)))
+        return HttpResponseRedirect(reverse('suena1M:results', args=(game.slug,)))

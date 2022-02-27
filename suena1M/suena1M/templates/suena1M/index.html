@@ -1,12 +1,12 @@
-{% extends 'suena1K/base.html' %}
+{% extends 'suena1M/base.html' %}
 {% load static %}
 {% block content %}
 <div class="lead">
-    <img src="{% static 'suena1K/suena_logo.png' %}" style="float: right;"/>
+    <img src="{% static 'suena1M/suena_logo.png' %}" style="float: right;"/>
 </div>
-<h1>suena 1K</h1>
+<h1>suena 1M</h1>
 <p class="lead">
-    Herzlich willkommen bei suena 1K! Spilen Sie einmal den Energiehandel nach. Der erste Spieler der 1000 Punkte
+    Herzlich willkommen bei suena 1M! Spilen Sie einmal den Energiehandel nach. Der erste Spieler der 1000 Punkte
     bekommt gewinnt!
 </p>
 <hr/>
@@ -30,6 +30,7 @@
     {% endif %}
     {% endfor %}
 </ul>
+{% endif %}
 <div>
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
@@ -62,5 +63,4 @@
         </div>
     </div>
 </div>
-{% endif %}
 {% endblock %}

@@ -17,8 +17,8 @@
     {% if game.is_active %}
     <li>
         <a href="{% url 'game' game.slug %}">
-            Anzahl Spieler: {{ game.player_set.all|length }} Status: {% if game.is_started %} Gestartet
-            {% else %} In Anmeldung {% endif %} | Name: {{ game.name }}
+            Status: {% if game.is_started %} Gestartet {% else %} In Anmeldung 
+            {% endif %} | Spieler: {{ game.player_set.all|length }} > {{ game.name }}
         </a>
     </li>
     {% endif %}
@@ -33,7 +33,7 @@
     {% if not game.is_active %}
     <li>
         <a href="{% url 'game' game.slug %}">
-            Anzahl Spieler: {{ game.player_set.all|length }} | Name: {{ game.name }}
+            Anzahl Spieler: {{ game.player_set.all|length }} > {{ game.name }}
         </a>
     </li>
     {% endif %}

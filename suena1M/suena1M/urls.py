@@ -19,21 +19,27 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import index, new_game, start_game, GameDetailView, register, play, ResultsDetailView
+from .views import (
+    index,
+    new_game,
+    start_game,
+    GameDetailView,
+    register,
+    play,
+    ResultsDetailView,
+)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', index, name="index"),
-    path('/new_game/', new_game, name="new_game"),
-    path('<str:slug>/', GameDetailView.as_view(), name="game"),
-    path('<str:slug>/start_game/', start_game, name="start_game"),
-    path('<str:slug>/register/', register, name="register"),
-    path('<str:slug>/play/', play, name="play"),
-    path('<str:slug>/results/', ResultsDetailView.as_view(), name="results"),
+    path("admin/", admin.site.urls),
+    path("chat/", include("chat.urls")),
+    path("", index, name="index"),
+    path("/new_game/", new_game, name="new_game"),
+    path("<str:slug>/", GameDetailView.as_view(), name="game"),
+    path("<str:slug>/start_game/", start_game, name="start_game"),
+    path("<str:slug>/register/", register, name="register"),
+    path("<str:slug>/play/", play, name="play"),
+    path("<str:slug>/results/", ResultsDetailView.as_view(), name="results"),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.STATIC_URL,
-        document_root=settings.STATIC_ROOT
-    )
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

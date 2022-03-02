@@ -25,7 +25,23 @@ class GameDetailView(generic.DetailView):
                 user_is_player = True
 
         context["registered"] = user_is_player
+        # context["players"] = model_to_dict(context["game"])
         return context
+
+
+def game(request, slug):
+    game = get_object_or_404(Game, slug=slug)
+    user_is_player = False
+    if "registered_for_games" in request.session:
+        if game.id in request.session["registered_for_games"]:
+            user_is_player = True
+
+    request.session["registered"] = user_is_player
+    context = {
+        "object": game,
+        "players": game.player_set.all(),
+    }
+    return render(request=request, template_name="suena1M/field.html", context=context)
 
 
 class ResultsDetailView(generic.DetailView):
@@ -91,23 +107,3 @@ def register(request, slug):
         request.session["registered_for_games"] = [game.id]
 
     return HttpResponseRedirect(reverse("game", args=(game.slug,)))
-
-
-def play(request, slug):
-    game = get_object_or_404(Game, slug=slug)
-    card = Card.objects.get(pk=request.POST["choice"])
-    player = Player.objects.get(pk=request.POST["player"].pk)
-    try:
-        selected = player.card_set.get(card)
-    except (KeyError, Card.DoesNotExist):
-        messages.error(
-            request, "Fehler: es wurde keine bzw. eine ungültige Karte ausgeählt!"
-        )
-        return HttpResponseRedirect(reverse("game", args=(game.slug,)))
-
-    else:
-        pass
-        # selected.votes += 1
-        # selected.save()
-        #
-        return HttpResponseRedirect(reverse("suena1M:results", args=(game.slug,)))

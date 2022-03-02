@@ -21,11 +21,10 @@ from django.conf.urls.static import static
 
 from .views import (
     index,
+    game,
     new_game,
     start_game,
-    GameDetailView,
     register,
-    play,
     ResultsDetailView,
 )
 
@@ -35,10 +34,9 @@ urlpatterns = [
     path("chat/", include("chat.urls")),
     path("", index, name="index"),
     path("/new_game/", new_game, name="new_game"),
-    path("<str:slug>/", GameDetailView.as_view(), name="game"),
+    path("<str:slug>/", game, name="game"),
     path("<str:slug>/start_game/", start_game, name="start_game"),
     path("<str:slug>/register/", register, name="register"),
-    path("<str:slug>/play/", play, name="play"),
     path("<str:slug>/results/", ResultsDetailView.as_view(), name="results"),
 ]
 

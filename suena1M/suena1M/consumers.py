@@ -6,12 +6,12 @@ from channels.generic.websocket import WebsocketConsumer
 
 class GameConsumer_sync(WebsocketConsumer):
     def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["slug"]
-        self.room_group_name = "game_%s" % self.room_name
+        self.game_name = self.scope["url_route"]["kwargs"]["slug"]
+        self.game_group_name = "game_%s" % self.game_name
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name, self.channel_name
+            self.game_group_name, self.channel_name
         )
 
         self.accept()
@@ -19,7 +19,7 @@ class GameConsumer_sync(WebsocketConsumer):
     def disconnect(self, close_code):
         # Leave room group
         async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, self.channel_name
+            self.game_group_name, self.channel_name
         )
 
     # Receive message from WebSocket
@@ -30,7 +30,7 @@ class GameConsumer_sync(WebsocketConsumer):
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
+            self.game_group_name,
             {"type": "chat_message", "message": message, "player_name": player_name},
         )
 

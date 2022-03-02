@@ -3,12 +3,16 @@
 {% block content %}
 {% if object %}
 <h1>Spiel: {{ object.name }}</h1>
-<a href="{% url 'index' %}">Zurück</a>
-<a href="#" 
-  target="popup" 
-  onclick="window.open('/chat/{{object.slug}}/','popup','width=750,height=350'); return false;">
-    Open Link in Popup
-</a>
+<div>
+    <a href="{% url 'index' %}">Zurück</a>
+    |
+    <a href="#" 
+    target="popup" 
+    onclick="window.open('/chat/{{object.slug}}/','popup','width=750,height=350'); return false;">
+        Chat
+    </a>
+</div>
+
 
 {% for message in messages %}
 <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">

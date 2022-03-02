@@ -14,12 +14,20 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter
 import chat.routing
+import suena1M.routing
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "suena1M.settings")
 
 application = ProtocolTypeRouter(
     {
         "http:": get_asgi_application(),
-        "websocket": AuthMiddlewareStack(URLRouter(chat.routing.websocket_urlpatterns)),
+        "websocket": AuthMiddlewareStack(
+            URLRouter(
+                [
+                    *chat.routing.websocket_urlpatterns,
+                    *suena1M.routing.websocket_urlpatterns,
+                ]
+            )
+        ),
     }
 )

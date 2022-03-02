@@ -74,6 +74,7 @@ class ChatConsumer_sync(WebsocketConsumer):
     # Receive message from room group
     def chat_message(self, event):
         message = event["message"]
+        player = self.scope["session"]["player"]
 
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"message": message}))
+        self.send(text_data=json.dumps({"message": f"{player['name']}: {message}"}))

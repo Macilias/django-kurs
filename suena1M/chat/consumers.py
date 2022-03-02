@@ -1,4 +1,5 @@
 import json
+from ssl import SSLSession
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 
@@ -30,9 +31,12 @@ class ChatConsumer_async(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         message = event["message"]
+        player = self.scope["session"]["player"]
 
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"message": message}))
+        await self.send(
+            text_data=json.dumps({"message": f"{player['name']}: {message}"})
+        )
 
 
 class ChatConsumer(ChatConsumer_async):

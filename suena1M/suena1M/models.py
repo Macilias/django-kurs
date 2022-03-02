@@ -57,14 +57,17 @@ class CardHolder(models.Model):
 
 
 class Table(CardHolder):
+    game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
     pass
 
 
 class PriorityDeck(CardHolder):
+    game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
     pass
 
 
 class GlobalCardDeck(CardHolder):
+    game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
     pass
 
 

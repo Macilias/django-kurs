@@ -37,10 +37,15 @@ def game(request, slug):
         if game.id in request.session["registered_for_games"]:
             user_is_player = True
 
+    player = request.session["player"]
+
     context = {
         "registered": user_is_player,
         "object": game,
         "players": game.player_set.all(),
+        "card_deck": game.globalcarddeck_set.all(),
+        "prio_deck": game.prioritydeck_set.all(),
+        "table": game.table_set.all(),
     }
     return render(request=request, template_name=template_name, context=context)
 

@@ -15,7 +15,7 @@ def index(request):
 
 class GameDetailView(generic.DetailView):
     model = Game
-    template_name = "suena1M/game.html"
+    template_name = "suena1M/field.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

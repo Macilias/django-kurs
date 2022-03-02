@@ -26,16 +26,8 @@
 {% if not registered %}
 <h3>Das Spiel ist bereits gestartet, leider kannst du nicht mehr mitmachen, sorry.</h3>
 {% else %}
-<h3>SPIELEN</h3>
-<form action="{% url 'play' object.slug %}" method="post">
-    {% csrf_token %}
-<!--    {% for choice in object.player_set.all %}-->
-<!--    <input type="radio" name="choice" value={{ choice.id }} class="input-group-text"-->
-<!--           id="choice{{ forloop.counter }}"/>-->
-<!--    <label> {{ choice.name }}</label>-->
-<!--    {% endfor %}-->
-<!--    <input type="submit" value="Antwort absenden">-->
-</form>
+{% block field %}
+{% endblock %}
 {% endif %}
 {% else %}
 {% if not registered %}

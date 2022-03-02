@@ -1,16 +1,16 @@
 from django.db import models
 
 ENERGY_SOURCE = (
-    ('S', 'Solar'),
-    ('W', 'Wind'),
-    ('A', 'Atomic'),
-    ('C', 'Carbon'),
+    ("S", "Solar"),
+    ("W", "Wind"),
+    ("A", "Atomic"),
+    ("C", "Carbon"),
 )
 
 FORECAST = (
-    ('W', 'Weather'),
-    ('M', 'Market'),
-    ('N', 'Non'),
+    ("W", "Weather"),
+    ("M", "Market"),
+    ("N", "Non"),
 )
 
 
@@ -41,8 +41,8 @@ class Game(models.Model):
 
 
 class Card(models.Model):
-    game = models.ForeignKey(to='Game', on_delete=models.CASCADE)
-    location = models.ForeignKey(to='CardHolder', on_delete=models.CASCADE)
+    game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
+    location = models.ForeignKey(to="CardHolder", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     value = models.IntegerField(default=0)
     source = models.CharField(max_length=1, choices=ENERGY_SOURCE)
@@ -74,10 +74,12 @@ class PlayersCollectedDeck(CardHolder):
 
 
 class Player(CardHolder):
-    game = models.ForeignKey(to='Game', on_delete=models.CASCADE)
+    game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
-    score = models.IntegerField(default=0)
-    source = models.IntegerField(default=0)
+    dam = models.IntegerField(default=0)
+    idm = models.IntegerField(default=0)
+    round_score = models.IntegerField(default=0)
+    game_score = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.name} is playing {self.game.name} score: {self.score}"

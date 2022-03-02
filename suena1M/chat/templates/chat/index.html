@@ -20,9 +20,9 @@
 
         document.querySelector('#room-name-submit').onclick = function(e) {
             var roomName = document.querySelector('#room-name-input').value;
-            if (!roomName) {
-                return
-            }
+            // if (!roomName) {
+            //     return
+            // }
             window.location.pathname = '/chat/' + roomName + '/';
         };
     </script>

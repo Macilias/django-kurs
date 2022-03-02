@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from .views import (
     index,
     game,
+    GameDetailView,
     new_game,
     start_game,
     register,

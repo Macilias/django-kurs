@@ -31,17 +31,18 @@ class GameDetailView(generic.DetailView):
 
 def game(request, slug):
     game = get_object_or_404(Game, slug=slug)
+    template_name = "suena1M/field.html"
     user_is_player = False
     if "registered_for_games" in request.session:
         if game.id in request.session["registered_for_games"]:
             user_is_player = True
 
-    request.session["registered"] = user_is_player
     context = {
+        "registered": user_is_player,
         "object": game,
         "players": game.player_set.all(),
     }
-    return render(request=request, template_name="suena1M/field.html", context=context)
+    return render(request=request, template_name=template_name, context=context)
 
 
 class ResultsDetailView(generic.DetailView):

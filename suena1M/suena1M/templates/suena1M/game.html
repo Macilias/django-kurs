@@ -4,6 +4,11 @@
 {% if object %}
 <h1>Spiel: {{ object.name }}</h1>
 <a href="{% url 'index' %}">Zurück</a>
+<a href="#" 
+  target="popup" 
+  onclick="window.open('/chat/{{object.slug}}/','popup','width=750,height=350'); return false;">
+    Open Link in Popup
+</a>
 
 {% for message in messages %}
 <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
@@ -92,4 +97,5 @@
 {% else %}
 <h1>Es konnte kein Spiel gefunden werden</h1>
 {% endif %}
+
 {% endblock %}

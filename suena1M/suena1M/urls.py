@@ -29,6 +29,7 @@ from .views import (
     ResultsDetailView,
 )
 
+app_name = "suena1M"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("chat/", include("chat.urls")),

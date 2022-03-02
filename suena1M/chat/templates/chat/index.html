@@ -1,9 +1,10 @@
 {% extends 'suena1M/base.html' %}
 {% block content %}
-What chat room would you like to enter?<br>
-<input id="room-name-input" type="text" size="100"><br>
-<input id="room-name-submit" type="button" value="Enter">
-
+<p>What chat room would you like to enter?</p>
+<div class="input-group mb-3">
+    <input id="room-name-input" type="text" class="form-control">
+    <input id="room-name-submit" type="button" value="Senden" class="btn btn-primary">
+</div>
 <script>
     document.querySelector('#room-name-input').focus();
     document.querySelector('#room-name-input').onkeyup = function(e) {
@@ -14,9 +15,9 @@ What chat room would you like to enter?<br>
 
     document.querySelector('#room-name-submit').onclick = function(e) {
         var roomName = document.querySelector('#room-name-input').value;
-        // if (!roomName) {
-        //     return
-        // }
+        if (!roomName) {
+            return
+        }
         window.location.pathname = '/chat/' + roomName + '/';
     };
 </script>

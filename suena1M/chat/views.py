@@ -6,4 +6,10 @@ def index(request):
 
 
 def room(request, room_name):
-    return render(request, "chat/room.html", {"room_name": room_name})
+    player = request.session["player"]
+    print(f"ROOM_NAME: {room_name}, player: {player}")
+    return render(
+        request,
+        "chat/room.html",
+        {"room_name": room_name, "player_name": player["name"]},
+    )

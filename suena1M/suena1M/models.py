@@ -1,21 +1,24 @@
 from django.db import models
+from enum import Enum
 
-ENERGY_SOURCE = (
-    ("S", "Solar"),
-    ("W", "Wind"),
-    ("A", "Atomic"),
-    ("C", "Carbon"),
-)
 
-FORECAST = (
-    ("W", "Weather"),
-    ("M", "Market"),
-    ("N", "Non"),
-)
+class EnergySource(Enum):
+    S = "Solar"
+    W = "Wind"
+    A = "Atomic"
+    C = "Carbon"
+
+
+class Forecast(Enum):
+    W = "Weather"
+    M = "Market"
+    N = "Non"
 
 
 class Round(models.Model):
-    current_triumph_source = models.CharField(max_length=1, choices=ENERGY_SOURCE)
+    current_triumph_source = models.CharField(
+        max_length=1, choices=[(e, e.value) for e in EnergySource]
+    )
     round_number = models.IntegerField(default=0)
 
     def __str__(self):
@@ -45,8 +48,10 @@ class Card(models.Model):
     location = models.ForeignKey(to="CardHolder", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     value = models.IntegerField(default=0)
-    source = models.CharField(max_length=1, choices=ENERGY_SOURCE)
-    forecast = models.CharField(max_length=1, choices=FORECAST)
+    source = models.CharField(
+        max_length=1, choices=[(e, e.value) for e in EnergySource]
+    )
+    forecast = models.CharField(max_length=1, choices=[(e, e.value) for e in Forecast])
 
     def __str__(self):
         return f"{self.game.name} ({self.name})"

@@ -4,8 +4,11 @@ from django.urls import reverse
 from django.views import generic
 from django.contrib import messages
 from django.forms.models import model_to_dict
+from random import shuffle
 
 from .models import (
+    EnergySource,
+    Forecast,
     Card,
     CardHolder,
     GlobalCardDeck,
@@ -89,7 +92,19 @@ def new_game(request):
 
 def create_cards(game, location):
     # now lets create the card deck
-    pass
+    cards = []
+    for s in EnergySource:
+        for y in [0, 2, 3, 4, 10, 11]:
+            f = Forecast.N
+            if y == 3:
+                f = Forecast.W
+            if y == 4:
+                f = Forecast.M
+            c = Card(game=game, location=location, value=y, source=s, forecast=f)
+            cards.append(c)
+            c.save()
+
+    return cards
 
 
 def start_game(request, slug):
@@ -110,6 +125,7 @@ def start_game(request, slug):
     prio_deck1.save()
     players = game.player_set.all()
     cards = create_cards(game=game, location=card_deck)
+    shuffle(cards)
     if len(players) == 2:
         prio_deck2 = PriorityDeck(game=game)
         prio_deck2.save()

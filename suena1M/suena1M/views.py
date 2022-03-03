@@ -5,7 +5,17 @@ from django.views import generic
 from django.contrib import messages
 from django.forms.models import model_to_dict
 
-from .models import Card, CardHolder, GlobalCardDeck, Game, Player, Round, Table
+from .models import (
+    Card,
+    CardHolder,
+    GlobalCardDeck,
+    Game,
+    Player,
+    PlayersCollectedDeck,
+    PriorityDeck,
+    Round,
+    Table,
+)
 
 
 def index(request):
@@ -37,7 +47,7 @@ def game(request, slug):
         if game.id in request.session["registered_for_games"]:
             user_is_player = True
 
-    player = request.session["player"]
+    # player = request.session["player"]
 
     context = {
         "registered": user_is_player,
@@ -46,6 +56,7 @@ def game(request, slug):
         "card_deck": game.globalcarddeck_set.all(),
         "prio_deck": game.prioritydeck_set.all(),
         "table": game.table_set.all(),
+        "cards": game.card_set.all(),
     }
     return render(request=request, template_name=template_name, context=context)
 
@@ -76,20 +87,39 @@ def new_game(request):
     return HttpResponseRedirect(reverse("game", args=(game.slug,)))
 
 
+def create_cards(game, location):
+    # now lets create the card deck
+    pass
+
+
 def start_game(request, slug):
     game = get_object_or_404(Game, slug=slug)
     player = request.session["player"]
     message = request.POST["message"]
-    if not game.is_started():
-        print(f"starting new game called {game.name} by {player.get('name')}")
-        game.started = True
-        game.save()
-        # add notification for other users about who started the game
-        full_message = f"Er sagt: {message}"
-        messages.info(
-            request,
-            f"Das Spiel wurde von {player.get('name')} gestartet. {full_message if message else ''}",
-        )
+    if game.is_started():
+        return HttpResponseRedirect(reverse("game", args=(game.slug,)))
+
+    print(f"starting new game called {game.name} by {player.get('name')}")
+    game.started = True
+    game.save()
+    card_deck = GlobalCardDeck(game=game)
+    card_deck.save()
+    table = Table(game=game)
+    table.save()
+    prio_deck1 = PriorityDeck(game=game)
+    prio_deck1.save()
+    players = game.player_set.all()
+    cards = create_cards(game=game, location=card_deck)
+    if len(players) == 2:
+        prio_deck2 = PriorityDeck(game=game)
+        prio_deck2.save()
+
+    # add notification for other users about who started the game
+    full_message = f"Er sagt: {message}"
+    messages.info(
+        request,
+        f"Das Spiel wurde von {player.get('name')} gestartet. {full_message if message else ''}",
+    )
 
     return HttpResponseRedirect(reverse("game", args=(game.slug,)))
 
@@ -99,6 +129,8 @@ def register(request, slug):
     name = request.POST["name"]
     new_player = Player(game=game, name=name)
     new_player.save()
+    players_collected_deck = PlayersCollectedDeck(user=new_player)
+    players_collected_deck.save()
     request.session["registered"] = True
     request.session["player"] = model_to_dict(new_player)
 

@@ -85,4 +85,4 @@ class Player(CardHolder):
     game_score = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.name} is playing {self.game.name} score: {self.score}"
+        return f"{self.name} is playing {self.game.name} game score: {self.game_score}"

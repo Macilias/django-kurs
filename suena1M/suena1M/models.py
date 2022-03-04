@@ -12,7 +12,15 @@ class EnergySource(Enum):
 class Forecast(Enum):
     W = "Weather"
     M = "Market"
-    N = "Non"
+
+
+class CardValue(Enum):
+    Neun = 0
+    Zehn = 10
+    Jack = 2
+    Dame = 3
+    King = 4
+    Ass = 11
 
 
 class Round(models.Model):
@@ -47,14 +55,29 @@ class Card(models.Model):
     game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
     location = models.ForeignKey(to="CardHolder", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
-    value = models.IntegerField(default=0)
+    value = models.CharField(max_length=4, choices=[(e, e.value) for e in CardValue])
     source = models.CharField(
         max_length=1, choices=[(e, e.value) for e in EnergySource]
     )
-    forecast = models.CharField(max_length=1, choices=[(e, e.value) for e in Forecast])
 
     def __str__(self):
-        return f"{self.game.name} ({self.name})"
+        return f"{self.game.name} {self.value} {self.source}"
+
+    def color(self):
+        if self.source == EnergySource.S:
+            return "yellow"
+        if self.source == EnergySource.W:
+            return "#2f76c7"
+        if self.source == EnergySource.A:
+            return "aqua"
+        if self.source == EnergySource.C:
+            return "black"
+
+    def forecast(self):
+        if self.value == CardValue.Dame:
+            return Forecast.W
+        if self.value == CardValue.King:
+            return Forecast.M
 
 
 class CardHolder(models.Model):

@@ -7,6 +7,7 @@ from django.forms.models import model_to_dict
 from random import shuffle
 
 from .models import (
+    CardValue,
     EnergySource,
     Forecast,
     Card,
@@ -50,12 +51,16 @@ def game(request, slug):
         if game.id in request.session["registered_for_games"]:
             user_is_player = True
 
-    # player = request.session["player"]
+    players_cards = []
+    if "player" in request.session:
+        player = request.session["player"]
+        players_cards = Card.objects.filter(location=player["id"])
 
     context = {
         "registered": user_is_player,
         "object": game,
         "players": game.player_set.all(),
+        "players_cards": players_cards,
         "card_deck": game.globalcarddeck_set.all(),
         "prio_deck": game.prioritydeck_set.all(),
         "table": game.table_set.all(),
@@ -94,13 +99,8 @@ def create_cards(game, location):
     # now lets create the card deck
     cards = []
     for s in EnergySource:
-        for y in [0, 2, 3, 4, 10, 11]:
-            f = Forecast.N
-            if y == 3:
-                f = Forecast.W
-            if y == 4:
-                f = Forecast.M
-            c = Card(game=game, location=location, value=y, source=s, forecast=f)
+        for y in CardValue:
+            c = Card(game=game, location=location, value=y, source=s)
             cards.append(c)
             c.save()
 

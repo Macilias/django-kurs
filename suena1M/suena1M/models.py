@@ -2,30 +2,30 @@ from django.db import models
 from enum import Enum
 
 
-class EnergySource(Enum):
-    S = "Solar"
-    W = "Wind"
-    A = "Atomic"
-    C = "Carbon"
+class EnergySource(models.TextChoices):
+    SOLAR = "S", "Solar"
+    WIND = "W", "Wind"
+    ATOMIC = "A", "Atomic"
+    CARBON = "C", "Carbon"
 
 
-class Forecast(Enum):
-    W = "Weather"
-    M = "Market"
+class Forecast(models.TextChoices):
+    WEATHER = "W", "Weather"
+    MARKET = "M", "Market"
 
 
-class CardValue(Enum):
-    Neun = 0
-    Zehn = 10
-    Jack = 2
-    Dame = 3
-    King = 4
-    Ass = 11
+class CardValue(models.IntegerChoices):
+    NEUN = 0
+    ZEHN = 10
+    JACK = 2
+    DAME = 3
+    KING = 4
+    ASS = 11
 
 
 class Round(models.Model):
     current_triumph_source = models.CharField(
-        max_length=1, choices=[(e, e.value) for e in EnergySource]
+        max_length=1, choices=EnergySource.choices
     )
     round_number = models.IntegerField(default=0)
 
@@ -55,53 +55,66 @@ class Card(models.Model):
     game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
     location = models.ForeignKey(to="CardHolder", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
-    value = models.CharField(max_length=4, choices=[(e, e.value) for e in CardValue])
-    source = models.CharField(
-        max_length=1, choices=[(e, e.value) for e in EnergySource]
-    )
+    value = models.IntegerField(choices=CardValue.choices)
+    source = models.CharField(max_length=1, choices=EnergySource.choices)
 
     def __str__(self):
-        return f"{self.game.name} {self.value} {self.source}"
+        return f"[{self.game.name}] {self.value}K {EnergySource(self.source).label} forecast: {self.forecast(as_label=True)} location: {self.location}"
 
     def color(self):
-        if self.source == EnergySource.S:
+        if self.source == EnergySource.SOLAR:
             return "yellow"
-        if self.source == EnergySource.W:
+        if self.source == EnergySource.WIND:
             return "#2f76c7"
-        if self.source == EnergySource.A:
+        if self.source == EnergySource.ATOMIC:
             return "aqua"
-        if self.source == EnergySource.C:
+        if self.source == EnergySource.CARBON:
             return "black"
 
-    def forecast(self):
-        if self.value == CardValue.Dame:
-            return Forecast.W
-        if self.value == CardValue.King:
-            return Forecast.M
+    def forecast(self, as_label=False):
+        if self.value == CardValue.DAME.value:
+            if not as_label:
+                return Forecast.WEATHER
+            else:
+                return Forecast(Forecast.WEATHER).label
+        if self.value == CardValue.KING.value:
+            if not as_label:
+                return Forecast.MARKET
+            else:
+                return Forecast(Forecast.MARKET).label
 
 
 class CardHolder(models.Model):
-    pass
+    def __str__(self):
+        return f"abstract carholder id: {self.pk}"
 
 
 class Table(CardHolder):
     game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
-    pass
+
+    def __str__(self):
+        return f"table id: {self.pk}"
 
 
 class PriorityDeck(CardHolder):
     game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
-    pass
+
+    def __str__(self):
+        return f"priority deck id: {self.pk}"
 
 
 class GlobalCardDeck(CardHolder):
     game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
-    pass
+
+    def __str__(self):
+        return f"card deck id: {self.pk}"
 
 
 class PlayersCollectedDeck(CardHolder):
     user = models.CharField(max_length=256)
-    pass
+
+    def __str__(self):
+        return f"player {self.user.name} deck id: {self.pk}"
 
 
 class Player(CardHolder):
@@ -113,4 +126,4 @@ class Player(CardHolder):
     game_score = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.name} is playing {self.game.name} game score: {self.game_score}"
+        return f"{self.name} is playing {self.game.name} game score: {self.game_score} id: {self.pk}"

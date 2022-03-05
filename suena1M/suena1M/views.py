@@ -51,6 +51,7 @@ def game(request, slug):
         if game.id in request.session["registered_for_games"]:
             user_is_player = True
 
+    player = None
     players_cards = []
     if "player" in request.session:
         player = request.session["player"]
@@ -59,6 +60,7 @@ def game(request, slug):
     context = {
         "registered": user_is_player,
         "object": game,
+        "player": player,
         "players": game.player_set.all(),
         "players_cards": players_cards,
         "card_deck": game.globalcarddeck_set.all(),
@@ -107,37 +109,39 @@ def create_cards(game, location):
     return cards
 
 
-def start_game(request, slug):
-    game = get_object_or_404(Game, slug=slug)
-    player = request.session["player"]
-    message = request.POST["message"]
-    if game.is_started():
-        return HttpResponseRedirect(reverse("game", args=(game.slug,)))
+# def start_game(request, slug):
+#     return
+#     game = get_object_or_404(Game, slug=slug)
+#     player = request.session["player"]
+#     message = request.POST["message"]
+#     if game.is_started():
+#         return HttpResponseRedirect(reverse("game", args=(game.slug,)))
 
-    print(f"starting new game called {game.name} by {player.get('name')}")
-    game.started = True
-    game.save()
-    card_deck = GlobalCardDeck(game=game)
-    card_deck.save()
-    table = Table(game=game)
-    table.save()
-    prio_deck1 = PriorityDeck(game=game)
-    prio_deck1.save()
-    players = game.player_set.all()
-    cards = create_cards(game=game, location=card_deck)
-    shuffle(cards)
-    if len(players) == 2:
-        prio_deck2 = PriorityDeck(game=game)
-        prio_deck2.save()
+#     print(f"starting new game called {game.name} by {player.get('name')}")
+#     game.started = True
+#     game.save()
+#     card_deck = GlobalCardDeck(game=game)
+#     card_deck.save()
+#     table = Table(game=game)
+#     table.save()
+#     prio_deck1 = PriorityDeck(game=game)
+#     prio_deck1.save()
+#     players_count = game.player_set.count()
+#     cards = create_cards(game=game, location=card_deck)
+#     shuffle(cards)
+#     if players_count == 2:
+#         prio_deck2 = PriorityDeck(game=game)
+#         prio_deck2.save()
 
-    # add notification for other users about who started the game
-    full_message = f"Er sagt: {message}"
-    messages.info(
-        request,
-        f"Das Spiel wurde von {player.get('name')} gestartet. {full_message if message else ''}",
-    )
+#     # add notification for other users about who started the game
+#     full_message = f"Er sagt: {message}"
+#     messages.info(
+#         request,
+#         f"Das Spiel wurde von {player.get('name')} gestartet. "
+#         f"{full_message if message else ''}",
+#     )
 
-    return HttpResponseRedirect(reverse("game", args=(game.slug,)))
+#     return HttpResponseRedirect(reverse("game", args=(game.slug,)))
 
 
 def register(request, slug):

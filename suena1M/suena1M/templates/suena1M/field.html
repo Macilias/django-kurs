@@ -68,8 +68,8 @@
         <th scope="col">Spieler</th>
         <th scope="col">Total Revenue</th>
         <th scope="col">Day Revenue</th>
-        <th scope="col">Dayahead Bad</th>
-        <th scope="col">Intraday Market Bad</th>
+        <th scope="col">Dayahead Bid</th>
+        <th scope="col">Intraday Market Bid</th>
       </tr>
     </thead>
     <tbody>
@@ -94,12 +94,12 @@
 </div> -->
 
 {{ object.slug|json_script:"game-slug" }}
-{{ player_name|json_script:"player-name" }}
+{{ player|json_script:"player" }}
 <script>
     const gameSlug = JSON.parse(document.getElementById('game-slug').textContent);
-    const playerName = JSON.parse(document.getElementById('player-name').textContent);
+    const player = JSON.parse(document.getElementById('player').textContent);
     console.log("gameSlug: " + gameSlug);
-    console.log("playerName: " + playerName);
+    console.log("player: " + player);
 
     const gameSocket = new WebSocket(
         'ws://'
@@ -130,7 +130,7 @@
         const message = messageInputDom.value;
         gameSocket.send(JSON.stringify({
             'message': message,
-            'player_name': playerName,
+            'player': player,
         }));
         messageInputDom.value = '';
     };

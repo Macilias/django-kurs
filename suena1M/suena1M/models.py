@@ -1,5 +1,14 @@
+import enum
 from django.db import models
 from enum import Enum
+
+
+class Action(models.TextChoices):
+    START_GAME = "STA", "START_GAME"
+    PRIO_PICK = "PIC", "PRIO_PICK"  # only when 2 players are playing
+    PRIO_SPLIT = "SPL", "PRIO_SPLIT"
+    DAM_BID = "DAM", "DAM_BID"
+    IDM_BID = "IDM", "IDM_BID"
 
 
 class EnergySource(models.TextChoices):

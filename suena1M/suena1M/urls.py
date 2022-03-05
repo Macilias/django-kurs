@@ -22,9 +22,7 @@ from django.conf.urls.static import static
 from .views import (
     index,
     game,
-    GameDetailView,
     new_game,
-    start_game,
     register,
     ResultsDetailView,
 )
@@ -36,7 +34,6 @@ urlpatterns = [
     path("", index, name="index"),
     path("/new_game/", new_game, name="new_game"),
     path("<str:slug>/", game, name="game"),
-    path("<str:slug>/start_game/", start_game, name="start_game"),
     path("<str:slug>/register/", register, name="register"),
     path("<str:slug>/results/", ResultsDetailView.as_view(), name="results"),
 ]

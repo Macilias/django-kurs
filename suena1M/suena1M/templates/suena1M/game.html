@@ -8,7 +8,7 @@
     |
     <a href="#" 
     target="popup" 
-    onclick="window.open('/chat/{{object.slug}}/','chat',',resizable=0,width=550,height=610'); return false;">
+    onclick="window.open('/chat/{{object.slug}}/','chat',',resizable=0,width=550,height=610');">
         Chat
     </a>
 </div>
@@ -55,16 +55,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url 'start_game' object.slug %}" method="post">
-                        {% csrf_token %}
+                    <form>
                         <div class="mb-3">
                             <label for="message-text" class="col-form-label">Nachricht an alle:</label>
-                            <textarea class="form-control" id="message-text" name="message"></textarea>
+                            <textarea id="chat-message-input" class="form-control" id="message-text" name="message"></textarea>
                         </div>
                         <input type="hidden" value="{{ variable }}" name="user_name">
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Doch nicht</button>
-                            <button type="submit" class="btn btn-primary">Spiel starten</button>
+                            <button id="start-game-submit" class="btn btn-primary">Spiel starten</button>
                         </div>
                     </form>
                 </div>
@@ -75,6 +74,34 @@
 {% else %}
 <h3>Warte auf weitere Mitspieler</h3>
 {% endif %}
+
+{{ object.slug|json_script:"game-slug" }}
+{{ player|json_script:"player" }}
+<script>
+    const gameSlug = JSON.parse(document.getElementById('game-slug').textContent);
+    const player = JSON.parse(document.getElementById('player').textContent);
+    console.log("start#gameSlug: " + gameSlug);
+    console.log("start#player: " + player);
+
+    const gameSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/game/'
+        + gameSlug
+        + '/'
+    );
+
+    document.querySelector('#start-game-submit').onclick = function(e) {
+        const action = "START_GAME";
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        gameSocket.send(JSON.stringify({
+            'action': action,
+            'player': player,
+            'message': message,
+        }));
+    };
+</script> 
 {% endif %}
 {% endif %}
 {% else %}

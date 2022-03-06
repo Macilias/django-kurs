@@ -18,8 +18,92 @@
 {% if not registered %}
 <h3>Das Spiel ist bereits gestartet, leider kannst du nicht mehr mitmachen, sorry.</h3>
 {% else %}
-{% block field %}
-{% endblock %}
+
+{% for message in messages %}
+<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+<div class="cardWrapper">
+    <div id = "card_board">
+        {% for card in players_cards %}
+            <div 
+                class="square" 
+                data-index="{{ forloop.counter0 }}"
+                style="background:'{{ card.color }}';"
+            >
+            {{ card.value }} {{ card.forecast }} 
+            </div>
+        {% endfor %}
+        <!-- <div class="square" data-index = '0' style="background:aqua;"></div>
+        <div class="square" data-index = '1'></div>
+        <div class="square" data-index = '2'></div>
+        <div class="square" data-index = '3'></div>
+        <div class="square" data-index = '4'></div>
+        <div class="square" data-index = '5'></div>
+        <div class="square" data-index = '6'></div>
+        <div class="square" data-index = '7'></div>
+        <div class="square" data-index = '8'></div> -->
+    </div>
+</div>
+<div class="gameWrapper">
+    <div class="row">
+        {% if players.0 %}
+            <div class="col-sm">{{players.0.name}}</div>  
+        {% else %}
+            <div class="col-sm"></div>  
+        {% endif %}    
+        <div class="col-sm"></div>
+        {% if players.1 %}
+            <div class="col-sm">{{players.1.name}}</div>
+        {% else %}
+            <div class="col-sm"></div>  
+        {% endif %}    
+    </div>
+    <div class="row">
+        <div class="col-sm">{{prio_deck.0.pk}}</div>
+        <div class="col-sm">Table: {{table.0.pk}}</div>
+        <div class="col-sm">{{prio_deck.1.pk}}</div>
+    </div>
+    <div class="row">
+        {% if players.2 %}
+            <div class="col-sm">{{players.2.name}}</div>
+        {% else %}
+            <div class="col-sm"></div>  
+        {% endif %}    
+        <div class="col-sm"></div>
+        {% if players.3 %}
+            <div class="col-sm">{{players.3.name}}</div>
+        {% else %}
+            <div class="col-sm"></div>  
+        {% endif %}    
+    </div>
+</div>
+</br>
+<table class="table table-striped table-dark">
+    <thead class="thead-light">
+      <tr>
+        <th scope="col">Spieler</th>
+        <th scope="col">Total Revenue</th>
+        <th scope="col">Day Revenue</th>
+        <th scope="col">Dayahead Bid</th>
+        <th scope="col">Intraday Market Bid</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for player in players %}
+      <tr>
+        <th scope="row">{{player.name}}</th>
+        <td>{{player.game_score}}</td>
+        <td>{{player.round_score}}</td>
+        <td>{{player.dam}}</td>
+        <td>{{player.idm}}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
 {% endif %}
 {% else %}
 {% if not registered %}
@@ -74,14 +158,24 @@
 {% else %}
 <h3>Warte auf weitere Mitspieler</h3>
 {% endif %}
+{% endif %}
+{% endif %}
+{% else %}
+<h3>Das Spiel ist nicht mehr aktiv. Wenn du mitgespielt hast kannst du dir <a
+        href="{% url 'results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
+{% endif %}
+
+{% else %}
+<h1>Es konnte kein Spiel gefunden werden</h1>
+{% endif %}
 
 {{ object.slug|json_script:"game-slug" }}
 {{ player|json_script:"player" }}
 <script>
     const gameSlug = JSON.parse(document.getElementById('game-slug').textContent);
     const player = JSON.parse(document.getElementById('player').textContent);
-    console.log("start#gameSlug: " + gameSlug);
-    console.log("start#player: " + player);
+    console.log("gameSlug: " + gameSlug);
+    console.log("player: " + player);
 
     const gameSocket = new WebSocket(
         'ws://'
@@ -90,6 +184,16 @@
         + gameSlug
         + '/'
     );
+
+    gameSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log("DATA: ", JSON.stringify(data));
+        // document.querySelector('#chat-log').value += (data.message + '\n');
+    };
+
+    gameSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
 
     document.querySelector('#start-game-submit').onclick = function(e) {
         const action = "START_GAME";
@@ -101,16 +205,32 @@
             'message': message,
         }));
     };
-</script> 
-{% endif %}
-{% endif %}
-{% else %}
-<h3>Das Spiel ist nicht mehr aktiv. Wenn du mitgespielt hast kannst du dir <a
-        href="{% url 'results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
-{% endif %}
-
-{% else %}
-<h1>Es konnte kein Spiel gefunden werden</h1>
-{% endif %}
+</script>
+<style type="text/css">
+    #card_board {
+        display: grid;
+        grid-gap: 0.5em;
+        grid-template-columns: repeat(8, 1fr);
+        width: 16em;
+        height: auto;
+        margin: 0.5em 0;
+    }
+    .square {
+        background: #2f76c7;
+        width: 5em;
+        height: 5em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0.5em;
+        font-weight: 500;
+        color: white;
+        box-shadow: 0.025em 0.125em 0.25em rgba(0, 0, 0, 0.25);
+    }
+    .col-sm {
+        font-size: x-large;
+        text-align: center;
+    }
+</style>     
 
 {% endblock %}

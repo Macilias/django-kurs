@@ -29,7 +29,7 @@ def index(request):
 
 class GameDetailView(generic.DetailView):
     model = Game
-    template_name = "suena1M/field.html"
+    template_name = "suena1M/game.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -45,7 +45,7 @@ class GameDetailView(generic.DetailView):
 
 def game(request, slug):
     game = get_object_or_404(Game, slug=slug)
-    template_name = "suena1M/field.html"
+    template_name = "suena1M/game.html"
     user_is_player = False
     if "registered_for_games" in request.session:
         if game.id in request.session["registered_for_games"]:

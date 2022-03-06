@@ -47,8 +47,13 @@ class GameConsumer(WebsocketConsumer):
     def receive(self, text_data):
         payload = json.loads(text_data)
         action = payload["action"]
-        message = payload["message"]
         acting_player = payload["player"]
+        message = None
+        if "message" in payload:
+            message = payload["message"]
+
+        if action == Action.CONNECT.label:
+            self.game(message=None)
 
         if action == Action.START_GAME.label:
             self.start_game(acting_player=acting_player, message=message)
@@ -80,21 +85,21 @@ class GameConsumer(WebsocketConsumer):
 
         context = {
             "registered": user_is_player,
-            "object": game_json,
+            "game": game_json,
             "player": player,
             "message": message,
-            "players": serialize("json", game_instance.player_set.all()),
+            "players": serialize("jsonl", game_instance.player_set.all()),
             "players_cards": serialize("json", players_cards),
             "card_deck": serialize("json", game_instance.globalcarddeck_set.all()),
             "prio_deck": serialize("json", game_instance.prioritydeck_set.all()),
             "table": serialize("json", game_instance.table_set.all()),
             "cards": serialize("json", game_instance.card_set.all()),
         }
-        # self.send(text_data=json.dumps({"context": context}))
-        async_to_sync(self.channel_layer.group_send)(
-            self.game_group_name,
-            {"text_data": json.dumps({"context": context})},
-        )
+        self.send(text_data=json.dumps({"context": context}))
+        # async_to_sync(self.channel_layer.group_send)(
+        #     self.game_group_name,
+        #     {"type": "game", "payload": json.dumps({"context": context})},
+        # )
 
     def create_cards(self, game, location):
         # now lets create the card deck

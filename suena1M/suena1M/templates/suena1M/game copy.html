@@ -213,10 +213,9 @@
         gameSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log("DATA: ", JSON.stringify(data));
-            if (data['context']['message']) {
-                document.querySelector('#messages').value = data['context']['message'];
+            if (data['message']) {
+                document.querySelector('#messages').value = data['message'];
             }
-            alert(JSON.stringify(data['context']['players']['model']));
             // document.querySelector('#chat-log').value += (data.message + '\n');
         };
 

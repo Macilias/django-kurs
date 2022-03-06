@@ -4,6 +4,7 @@ from enum import Enum
 
 
 class Action(models.TextChoices):
+    CONNECT = "CON", "CONNECT"
     START_GAME = "STA", "START_GAME"
     PRIO_PICK = "PIC", "PRIO_PICK"  # only when 2 players are playing
     PRIO_SPLIT = "SPL", "PRIO_SPLIT"

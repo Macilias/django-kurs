@@ -51,22 +51,22 @@ def game(request, slug):
         if game.id in request.session["registered_for_games"]:
             user_is_player = True
 
-    player = None
-    players_cards = []
-    if "player" in request.session:
-        player = request.session["player"]
-        players_cards = Card.objects.filter(location=player["id"])
+    # player = None
+    # players_cards = []
+    # if "player" in request.session:
+    #     player = request.session["player"]
+    #     players_cards = Card.objects.filter(location=player["id"])
 
     context = {
         "registered": user_is_player,
         "object": game,
-        "player": player,
-        "players": game.player_set.all(),
-        "players_cards": players_cards,
-        "card_deck": game.globalcarddeck_set.all(),
-        "prio_deck": game.prioritydeck_set.all(),
-        "table": game.table_set.all(),
-        "cards": game.card_set.all(),
+        # "player": player,
+        # "players": game.player_set.all(),
+        # "players_cards": players_cards,
+        # "card_deck": game.globalcarddeck_set.all(),
+        # "prio_deck": game.prioritydeck_set.all(),
+        # "table": game.table_set.all(),
+        # "cards": game.card_set.all(),
     }
     return render(request=request, template_name=template_name, context=context)
 

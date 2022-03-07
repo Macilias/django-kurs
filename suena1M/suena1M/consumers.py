@@ -8,6 +8,11 @@ from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.core.serializers import serialize
 
+from .serializers import (
+    PlayerSerializer,
+    CardSerializer,
+)
+
 from .models import (
     Action,
     EnergySource,
@@ -67,8 +72,6 @@ class GameConsumer(WebsocketConsumer):
     # Receive message from room group
     def game(self, message):
         game_instance = Game.objects.get(slug=self.game_name)
-        # game_json = Game.objects.filter(slug=self.game_name).values().first()
-        # game_json = serialize("json", game_instance)
         game_json = model_to_dict(
             game_instance, fields=["name", "slug", "round_number", "active", "started"]
         )
@@ -83,23 +86,51 @@ class GameConsumer(WebsocketConsumer):
             player = self.scope["session"]["player"]
             players_cards = Card.objects.filter(location=player["id"])
 
+        players = game_instance.player_set.all()
+
+        card_deck = game_instance.globalcarddeck_set.all().first()
+        print("card_deck: ", card_deck)
+        card_deck_cards = Card.objects.filter(location=card_deck.id)
+        print("card_deck_cards: ", card_deck_cards)
+
+        priority_decks = game_instance.prioritydeck_set.all()
+        print("card_deck: ", card_deck)
+        priority_deck1_cards = Card.objects.filter(location=priority_decks[0].id)
+        print("priority_deck1_cards: ", priority_deck1_cards)
+        priority_deck2_cards = []
+        if len(players) == 2 and len(priority_decks) == 2:
+            priority_deck2_cards = Card.objects.filter(location=priority_decks[1].id)
+            print("priority_deck2_cards: ", priority_deck2_cards)
+
+        table = game_instance.table_set.all().first()
+        print("table: ", table)
+        table_cards = Card.objects.filter(location=table.id)
+        print("table_cards: ", table_cards)
+
         context = {
             "registered": user_is_player,
             "game": game_json,
             "player": player,
             "message": message,
-            "players": serialize("jsonl", game_instance.player_set.all()),
-            "players_cards": serialize("json", players_cards),
-            "card_deck": serialize("json", game_instance.globalcarddeck_set.all()),
-            "prio_deck": serialize("json", game_instance.prioritydeck_set.all()),
-            "table": serialize("json", game_instance.table_set.all()),
-            "cards": serialize("json", game_instance.card_set.all()),
+            "players": PlayerSerializer(players, many=True).data,
+            "players_cards": CardSerializer(players_cards, many=True).data,
+            "card_deck": CardSerializer(card_deck_cards, many=True).data,
+            "prio_deck1": CardSerializer(priority_deck1_cards, many=True).data,
+            "prio_deck2": CardSerializer(priority_deck2_cards, many=True).data,
+            "table": CardSerializer(table_cards, many=True).data,
         }
         self.send(text_data=json.dumps({"context": context}))
         # async_to_sync(self.channel_layer.group_send)(
         #     self.game_group_name,
         #     {"type": "game", "payload": json.dumps({"context": context})},
         # )
+
+    def deal_cards(
+        self,
+        card_deck_cards,
+        players,
+    ):
+        pass
 
     def create_cards(self, game, location):
         # now lets create the card deck

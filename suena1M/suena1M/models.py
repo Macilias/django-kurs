@@ -33,16 +33,6 @@ class CardValue(models.IntegerChoices):
     ASS = 11
 
 
-class Round(models.Model):
-    current_triumph_source = models.CharField(
-        max_length=1, choices=EnergySource.choices
-    )
-    round_number = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"round: {self.round_number} triumph: {self.current_triumph_source}"
-
-
 class Game(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
@@ -59,6 +49,16 @@ class Game(models.Model):
 
     def is_started(self):
         return self.started
+
+
+class Round(models.Model):
+    current_triumph_source = models.CharField(
+        max_length=1, choices=EnergySource.choices
+    )
+    round_number = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"round: {self.round_number} triumph: {self.current_triumph_source}"
 
 
 class Card(models.Model):

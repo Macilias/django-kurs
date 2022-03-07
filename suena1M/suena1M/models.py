@@ -124,7 +124,7 @@ class PlayersCollectedDeck(CardHolder):
     user = models.CharField(max_length=256)
 
     def __str__(self):
-        return f"player {self.user.name} deck id: {self.pk}"
+        return f"player {self.user} deck id: {self.pk}"
 
 
 class Player(CardHolder):

@@ -1,12 +1,10 @@
 import json
 from ssl import SSLSession
 from asgiref.sync import async_to_sync
-from channels.db import database_sync_to_async
 from channels.generic.websocket import WebsocketConsumer
 from random import shuffle
 from django.contrib import messages
 from django.forms.models import model_to_dict
-from django.core.serializers import serialize
 
 from .serializers import (
     PlayerSerializer,
@@ -80,13 +78,25 @@ class GameConsumer(WebsocketConsumer):
             if game_instance.id in self.scope["session"]["registered_for_games"]:
                 user_is_player = True
 
+        players = game_instance.player_set.all()
+
+        if not game_instance.is_started():
+            context = {
+                "registered": user_is_player,
+                "game": game_json,
+                "player": self.scope["session"]["player"],
+                "message": message,
+                "level": level,
+                "players": PlayerSerializer(players, many=True).data,
+            }
+            self.send(text_data=json.dumps({"context": context}))
+            return
+
         player = None
         players_cards = []
         if "player" in self.scope["session"]:
             player = self.scope["session"]["player"]
             players_cards = Card.objects.filter(location=player["id"])
-
-        players = game_instance.player_set.all()
 
         card_deck = game_instance.globalcarddeck_set.all().first()
         print("card_deck: ", card_deck)
@@ -129,8 +139,28 @@ class GameConsumer(WebsocketConsumer):
         self,
         card_deck_cards,
         players,
+        prio_deck1,
+        prio_deck2,
     ):
-        pass
+        i = 0
+        p = len(players)
+        d = 3
+        if p == 2:
+            d = 4
+        while i < len(card_deck_cards):
+            card = card_deck_cards[i]
+            if i < d:
+                if p == 2 and i >= 2:
+                    card.location = prio_deck2
+
+                card.location = prio_deck1
+
+            else:
+                player = players[i % p]
+                card.location = player
+
+            card.save()
+            i += 1
 
     def create_cards(self, game, location):
         # now lets create the card deck
@@ -162,9 +192,18 @@ class GameConsumer(WebsocketConsumer):
         players_count = game.player_set.count()
         cards = self.create_cards(game=game, location=card_deck)
         shuffle(cards)
+        prio_deck2 = None
         if players_count == 2:
             prio_deck2 = PriorityDeck(game=game)
             prio_deck2.save()
+
+        players = game.player_set.all()
+        self.deal_cards(
+            card_deck_cards=cards,
+            players=players,
+            prio_deck1=prio_deck1,
+            prio_deck2=prio_deck2,
+        )
 
         # add notification for other users about who started the game
         full_message = f"Er/Sie sagt: {message}"

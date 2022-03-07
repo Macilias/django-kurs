@@ -51,16 +51,16 @@ def game(request, slug):
         if game.id in request.session["registered_for_games"]:
             user_is_player = True
 
-    # player = None
+    player = None
     # players_cards = []
-    # if "player" in request.session:
-    #     player = request.session["player"]
-    #     players_cards = Card.objects.filter(location=player["id"])
+    if "player" in request.session:
+        player = request.session["player"]
+        # players_cards = Card.objects.filter(location=player["id"])
 
     context = {
         "registered": user_is_player,
         "object": game,
-        # "player": player,
+        "player": player,
         # "players": game.player_set.all(),
         # "players_cards": players_cards,
         # "card_deck": game.globalcarddeck_set.all(),

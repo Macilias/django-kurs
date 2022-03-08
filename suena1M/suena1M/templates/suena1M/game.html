@@ -192,6 +192,10 @@
         alert(`die karte ${cardId} wurde ausgewählt`);
     };
 
+    function pass(cardId) {
+        alert(`die karte ${cardId} wird abgegeben`);
+    };
+
     function connect() {
         gameSocket.onopen = function open() {
             console.log('WebSockets connection created.');
@@ -269,12 +273,16 @@
                     $('#prio_deck1').append(
                         `<div 
                             class="square" 
+                            id="card-${c['id']}"
                             data-index="${i}"
                             style="background:${c['color_value']};"
                         >
                             ${c['value']}K<br>${c['forecast_value']}
                         </div>`
                     );
+                    $('#prio_deck1').on("click", `#card-${c['id']}`, function() {
+                        pass(c['id']);
+                    });
                 });
             }
             const prio_deck2 = document.getElementById('prio_deck2');
@@ -284,13 +292,17 @@
                     // console.log("Priority deck 2 card at " + i + " is " + JSON.stringify(c));
                     $('#prio_deck2').append(
                         `<div 
-                            class="square" 
+                            class="square"
+                            id="card-${c['id']}" 
                             data-index="${i}"
                             style="background:${c['color_value']};"
                         >
                             ${c['value']}K<br>${c['forecast_value']}
                         </div>`
                     );
+                    $('#prio_deck2').on("click", `#card-${c['id']}`, function() {
+                        pass(c['id']);
+                    });
                 });
             }
             const table_deck = document.getElementById('table_deck');

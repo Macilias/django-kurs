@@ -120,7 +120,7 @@
         </div>
         <div id="game_not_started" {{ object.is_started|yesno:",hidden" }}>
             <p>GAME IS NOT STARTED</p>
-            {% if not registered %}
+            <div id="player_not_registered" {{ registered|yesno:",hidden" }}>
                 <p>USER NOT IS REGISTERED</p>
                 <form action="{% url 'register' object.slug %}" method="post">
                     {% csrf_token %}
@@ -133,7 +133,8 @@
                         <input type="submit" value="Mitspielen" class="btn btn-primary">
                     </div>
                 </form>
-            {% else %}
+            </div>
+            <div id="player_registered" {{ not_registered|yesno:",hidden" }}>
                 <p>USER IS REGISTERED</p>
                 {% if object.player_set.all|length > 1 and object.player_set.all|length < 5 %}
                     <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
@@ -174,7 +175,7 @@
                 {% else %}
                     <h3>Warte auf weitere Mitspieler</h3>
                 {% endif %}
-            {% endif %}
+            </div>    
         </div>
     </div>
     <div id="game_not_active" {{ object.is_active|yesno:",hidden" }}>
@@ -253,6 +254,8 @@
             document.getElementById('game_not_active').hidden = game["active"] ? true : false;
             document.getElementById('game_started').hidden = game["started"] ? false : true;
             document.getElementById('game_not_started').hidden = game["started"] ? true : false;
+            document.getElementById('player_registered').hidden = data['context']["registered"] ? false : true;
+            document.getElementById('player_not_registered').hidden = data['context']["registered"] ? true : false;
             // alert(JSON.stringify(data['context']['players']));
             // document.querySelector('#chat-log').value += (data.message + '\n');
         };

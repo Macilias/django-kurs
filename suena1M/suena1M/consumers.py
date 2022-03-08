@@ -79,6 +79,8 @@ class GameConsumer(WebsocketConsumer):
                 user_is_player = True
 
         players = game_instance.player_set.all()
+        players_count = len(players)
+        ready_to_start = 2 <= players_count < 4
 
         if not game_instance.is_started():
             context = {
@@ -88,6 +90,8 @@ class GameConsumer(WebsocketConsumer):
                 "message": message,
                 "level": level,
                 "players": PlayerSerializer(players, many=True).data,
+                "players_count": players_count,
+                "ready_to_start": ready_to_start,
             }
             self.send(text_data=json.dumps({"context": context}))
             return
@@ -128,6 +132,8 @@ class GameConsumer(WebsocketConsumer):
             "prio_deck1": CardSerializer(priority_deck1_cards, many=True).data,
             "prio_deck2": CardSerializer(priority_deck2_cards, many=True).data,
             "table": CardSerializer(table_cards, many=True).data,
+            "players_count": players_count,
+            "ready_to_start": ready_to_start,
         }
         self.send(text_data=json.dumps({"context": context}))
         # async_to_sync(self.channel_layer.group_send)(

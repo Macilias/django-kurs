@@ -136,7 +136,7 @@
             </div>
             <div id="player_registered" {{ not_registered|yesno:",hidden" }}>
                 <p>USER IS REGISTERED</p>
-                {% if object.player_set.all|length > 1 and object.player_set.all|length < 5 %}
+                <div id="ready_to_start" {{ not_registered|yesno:",hidden" }}>
                     <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
                         {{ object.player_set.all|length }}
                     </h3>
@@ -172,9 +172,10 @@
                             </div>
                         </div>
                     </div>
-                {% else %}
+                </div>
+                <div id="registration_pending" {{ not_registered|yesno:",hidden" }}>
                     <h3>Warte auf weitere Mitspieler</h3>
-                {% endif %}
+                </div>
             </div>    
         </div>
     </div>
@@ -247,17 +248,17 @@
             if (message) {
                 console.log("APPENIDNG MESSAGE: ", message)
                 showAlert(message, level)
-                // document.querySelector('#messages').value = message;
             }
             const game = data['context']['game']
+            const players = data['context']['players']
             document.getElementById('game_active').hidden = game["active"] ? false : true;
             document.getElementById('game_not_active').hidden = game["active"] ? true : false;
             document.getElementById('game_started').hidden = game["started"] ? false : true;
             document.getElementById('game_not_started').hidden = game["started"] ? true : false;
             document.getElementById('player_registered').hidden = data['context']["registered"] ? false : true;
             document.getElementById('player_not_registered').hidden = data['context']["registered"] ? true : false;
-            // alert(JSON.stringify(data['context']['players']));
-            // document.querySelector('#chat-log').value += (data.message + '\n');
+            document.getElementById('ready_to_start').hidden = data['context']["ready_to_start"] ? false : true;
+            document.getElementById('registration_pending').hidden = data['context']["ready_to_start"] ? true : false;
         };
 
         gameSocket.onclose = function(e) {

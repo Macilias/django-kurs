@@ -2,190 +2,186 @@
 {% load static %}
 {% block content %}
 {% if object %}
-<h1>Spiel: {{ object.name }}</h1>
-<div>
-    <a href="{% url 'index' %}">Zurück</a>
-    |
-    <a href="#" 
-    target="popup" 
-    onclick="window.open('/chat/{{object.slug}}/','chat',',resizable=0,width=550,height=610');">
-        Chat
-    </a>
-</div>
+    <h1>Spiel: {{ object.name }}</h1>
+    <div>
+        <a href="{% url 'index' %}">Zurück</a>
+        |
+        <a href="#" 
+        target="popup" 
+        onclick="window.open('/chat/{{object.slug}}/','chat',',resizable=0,width=550,height=610');">
+            Chat
+        </a>
+    </div>
 
-<div hidden="true" id="messages-info" class="alert alert-info alert-dismissible fade show" role="alert">
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-<div hidden="true" id="messages-success" class="alert alert-success alert-dismissible fade show" role="alert">
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-<div hidden="true" id="messages-warning" class="alert alert-warning alert-dismissible fade show" role="alert">
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-<div hidden="true" id="messages-danger" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-<p>TEST</p>
-<div id="game_active" {{ object.is_inactive|yesno:",hidden" }}>
-    <p>GAME IS ACTIVE</p>
-</div>
-<div id="game_not_active" {{ object.is_active|yesno:",hidden" }}>
-    <p>GAME IS NOT ACTIVE</p>
-</div>
-{% if object.is_active %}
-{% if object.is_started %}
-{% if not registered %}
-<h3>Das Spiel ist bereits gestartet, leider kannst du nicht mehr mitmachen, sorry.</h3>
-{% else %}
-
-{% for message in messages %}
-<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endfor %}
-<div class="cardWrapper">
-    <div id = "card_board">
-        {% for card in players_cards %}
-            <div 
-                class="square" 
-                data-index="{{ forloop.counter0 }}"
-                style="background:'{{ card.color }}';"
-            >
-            {{ card.value }} {{ card.forecast }} 
-            </div>
-        {% endfor %}
-        <!-- <div class="square" data-index = '0' style="background:aqua;"></div>
-        <div class="square" data-index = '1'></div>
-        <div class="square" data-index = '2'></div>
-        <div class="square" data-index = '3'></div>
-        <div class="square" data-index = '4'></div>
-        <div class="square" data-index = '5'></div>
-        <div class="square" data-index = '6'></div>
-        <div class="square" data-index = '7'></div>
-        <div class="square" data-index = '8'></div> -->
+    <div hidden="true" id="messages-info" class="alert alert-info alert-dismissible fade show" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-</div>
-<div class="gameWrapper">
-    <div class="row">
-        {% if players.0 %}
-            <div class="col-sm">{{players.0.name}}</div>  
-        {% else %}
-            <div class="col-sm"></div>  
-        {% endif %}    
-        <div class="col-sm"></div>
-        {% if players.1 %}
-            <div class="col-sm">{{players.1.name}}</div>
-        {% else %}
-            <div class="col-sm"></div>  
-        {% endif %}    
+    <div hidden="true" id="messages-success" class="alert alert-success alert-dismissible fade show" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div class="row">
-        <div class="col-sm">{{prio_deck.0.pk}}</div>
-        <div class="col-sm">Table: {{table.0.pk}}</div>
-        <div class="col-sm">{{prio_deck.1.pk}}</div>
+    <div hidden="true" id="messages-warning" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div class="row">
-        {% if players.2 %}
-            <div class="col-sm">{{players.2.name}}</div>
-        {% else %}
-            <div class="col-sm"></div>  
-        {% endif %}    
-        <div class="col-sm"></div>
-        {% if players.3 %}
-            <div class="col-sm">{{players.3.name}}</div>
-        {% else %}
-            <div class="col-sm"></div>  
-        {% endif %}    
+    <div hidden="true" id="messages-danger" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-</div>
-</br>
-<table class="table table-striped table-dark">
-    <thead class="thead-light">
-      <tr>
-        <th scope="col">Spieler</th>
-        <th scope="col">Total Revenue</th>
-        <th scope="col">Day Revenue</th>
-        <th scope="col">Dayahead Bid</th>
-        <th scope="col">Intraday Market Bid</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for player in players %}
-      <tr>
-        <th scope="row">{{player.name}}</th>
-        <td>{{player.game_score}}</td>
-        <td>{{player.round_score}}</td>
-        <td>{{player.dam}}</td>
-        <td>{{player.idm}}</td>
-      </tr>
+    {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     {% endfor %}
-    </tbody>
-</table>
-
-{% endif %}
-{% else %}
-{% if not registered %}
-<form action="{% url 'register' object.slug %}" method="post">
-    {% csrf_token %}
-    <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon1">
-          Spieler Anzahl {{ object.player_set.all|length }}
-        </span>
-        <input type="text" class="form-control" placeholder="wie heisst du?" aria-label="Username"
-               aria-describedby="basic-addon1" name="name">
-        <input type="submit" value="Mitspielen" class="btn btn-primary">
-    </div>
-</form>
-{% else %}
-{% if object.player_set.all|length > 1 and object.player_set.all|length < 5 %}
-<h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
-    {{ object.player_set.all|length }}
-</h3>
-<div>
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
-            style="float: right;">
-        Spiel starten
-    </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Irgendwelche letzten Worte?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div id="game_active" {{ object.is_inactive|yesno:",hidden" }}>
+        <p>GAME IS ACTIVE</p>
+        <div id="game_started" {{ object.is_not_started|yesno:",hidden" }}>
+            <p>GAME IS STARTED</p>
+            {% if not registered %}
+                <h3>Das Spiel ist bereits gestartet, leider kannst du nicht mehr mitmachen, sorry.</h3>
+            {% else %}
+                <div class="cardWrapper">
+                    <div id = "card_board">
+                        {% for card in players_cards %}
+                            <div 
+                                class="square" 
+                                data-index="{{ forloop.counter0 }}"
+                                style="background:'{{ card.color }}';"
+                            >
+                            {{ card.value }} {{ card.forecast }} 
+                            </div>
+                        {% endfor %}
+                        <!-- <div class="square" data-index = '0' style="background:aqua;"></div>
+                        <div class="square" data-index = '1'></div>
+                        <div class="square" data-index = '2'></div>
+                        <div class="square" data-index = '3'></div>
+                        <div class="square" data-index = '4'></div>
+                        <div class="square" data-index = '5'></div>
+                        <div class="square" data-index = '6'></div>
+                        <div class="square" data-index = '7'></div>
+                        <div class="square" data-index = '8'></div> -->
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Nachricht an alle:</label>
-                            <textarea id="chat-message-input" class="form-control" id="message-text" name="message"></textarea>
-                        </div>
-                        <input type="hidden" value="{{ variable }}" name="user_name">
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Doch nicht</button>
-                            <button id="start-game-submit" class="btn btn-primary">Spiel starten</button>
-                        </div>
-                    </form>
+                <div class="gameWrapper">
+                    <div class="row">
+                        {% if players.0 %}
+                            <div class="col-sm">{{players.0.name}}</div>  
+                        {% else %}
+                            <div class="col-sm"></div>  
+                        {% endif %}    
+                        <div class="col-sm"></div>
+                        {% if players.1 %}
+                            <div class="col-sm">{{players.1.name}}</div>
+                        {% else %}
+                            <div class="col-sm"></div>  
+                        {% endif %}    
+                    </div>
+                    <div class="row">
+                        <div class="col-sm">{{prio_deck.0.pk}}</div>
+                        <div class="col-sm">Table: {{table.0.pk}}</div>
+                        <div class="col-sm">{{prio_deck.1.pk}}</div>
+                    </div>
+                    <div class="row">
+                        {% if players.2 %}
+                            <div class="col-sm">{{players.2.name}}</div>
+                        {% else %}
+                            <div class="col-sm"></div>  
+                        {% endif %}    
+                        <div class="col-sm"></div>
+                        {% if players.3 %}
+                            <div class="col-sm">{{players.3.name}}</div>
+                        {% else %}
+                            <div class="col-sm"></div>  
+                        {% endif %}    
+                    </div>
                 </div>
-            </div>
+                </br>
+                <table class="table table-striped table-dark">
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Spieler</th>
+                        <th scope="col">Total Revenue</th>
+                        <th scope="col">Day Revenue</th>
+                        <th scope="col">Dayahead Bid</th>
+                        <th scope="col">Intraday Market Bid</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for player in players %}
+                        <tr>
+                            <th scope="row">{{player.name}}</th>
+                            <td>{{player.game_score}}</td>
+                            <td>{{player.round_score}}</td>
+                            <td>{{player.dam}}</td>
+                            <td>{{player.idm}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+        <div id="game_not_started" {{ object.is_started|yesno:",hidden" }}>
+            <p>GAME IS NOT STARTED</p>
+            {% if not registered %}
+                <form action="{% url 'register' object.slug %}" method="post">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">
+                        Spieler Anzahl {{ object.player_set.all|length }}
+                        </span>
+                        <input type="text" class="form-control" placeholder="wie heisst du?" aria-label="Username"
+                            aria-describedby="basic-addon1" name="name">
+                        <input type="submit" value="Mitspielen" class="btn btn-primary">
+                    </div>
+                </form>
+            {% else %}
+                {% if object.player_set.all|length > 1 and object.player_set.all|length < 5 %}
+                <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
+                    {{ object.player_set.all|length }}
+                </h3>
+                <div>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            style="float: right;">
+                        Spiel starten
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Irgendwelche letzten Worte?</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="message-text" class="col-form-label">Nachricht an alle:</label>
+                                            <textarea id="chat-message-input" class="form-control" id="message-text" name="message"></textarea>
+                                        </div>
+                                        <input type="hidden" value="{{ variable }}" name="user_name">
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Doch nicht</button>
+                                            <button id="start-game-submit" class="btn btn-primary">Spiel starten</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                    <h3>Warte auf weitere Mitspieler</h3>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
-</div>
+    <div id="game_not_active" {{ object.is_active|yesno:",hidden" }}>
+        <p>GAME IS NOT ACTIVE</p>
+        <h3>Das Spiel ist nicht mehr aktiv. Wenn du mitgespielt hast kannst du dir <a
+            href="{% url 'results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
+    </div>
 {% else %}
-<h3>Warte auf weitere Mitspieler</h3>
-{% endif %}
-{% endif %}
-{% endif %}
-{% else %}
-<h3>Das Spiel ist nicht mehr aktiv. Wenn du mitgespielt hast kannst du dir <a
-        href="{% url 'results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
-{% endif %}
-
-{% else %}
-<h1>Es konnte kein Spiel gefunden werden</h1>
+    <h1>Es konnte kein Spiel gefunden werden</h1>
 {% endif %}
 
 {{ object.slug|json_script:"game-slug" }}
@@ -253,7 +249,8 @@
             const game = data['context']['game']
             document.getElementById('game_active').hidden = game["active"] ? false : true;
             document.getElementById('game_not_active').hidden = game["active"] ? true : false;
-
+            document.getElementById('game_started').hidden = game["started"] ? false : true;
+            document.getElementById('game_not_started').hidden = game["started"] ? true : false;
             // alert(JSON.stringify(data['context']['players']));
             // document.querySelector('#chat-log').value += (data.message + '\n');
         };

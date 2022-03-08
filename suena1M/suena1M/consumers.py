@@ -90,7 +90,7 @@ class GameConsumer(WebsocketConsumer):
                 "message": message,
                 "level": level,
                 "players": PlayerSerializer(players, many=True).data,
-                "players_count": players_count + 2,
+                "players_count": players_count,
                 "ready_to_start": ready_to_start,
                 "ASGI": True,
             }

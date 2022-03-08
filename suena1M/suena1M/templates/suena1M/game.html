@@ -105,16 +105,8 @@
                         <th scope="col">Intraday Market Bid</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {% for player in players %}
-                        <tr>
-                            <th scope="row">{{player.name}}</th>
-                            <td>{{player.game_score}}</td>
-                            <td>{{player.round_score}}</td>
-                            <td>{{player.dam}}</td>
-                            <td>{{player.idm}}</td>
-                        </tr>
-                    {% endfor %}
+                    <tbody id="score_table">
+                        
                     </tbody>
                 </table>
             </div>
@@ -267,6 +259,13 @@
             document.getElementById('registration_pending').hidden = data['context']["ready_to_start"] ? true : false;
             document.querySelector('.ready_to_start h3').firstChild.nodeValue = ready_to_start_text + " " + data['context']["players_count"];
             document.querySelector('.registration_pending h3').firstChild.nodeValue = registration_pending_text + " " + data['context']["players_count"];
+            const score_table = document.getElementById('score_table');
+            if (score_table) {
+                players.forEach((p, i) => {
+                    console.log("Player at " + i + " is " + JSON.stringify(p));
+                    $('#score_table').append(`<tr id="R${i}"><th scope="row">${p['name']}</th><td>${p['game_score']}</td><td>${p['round_score']}</td><td>${p['dam']}</td><td>${p['idm']}</td></tr>`);
+                });
+            }
         };
 
         gameSocket.onclose = function(e) {

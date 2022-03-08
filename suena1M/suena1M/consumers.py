@@ -204,6 +204,8 @@ class GameConsumer(WebsocketConsumer):
             prio_deck2.save()
         cards = self.create_cards(game=game, location=card_deck)
         shuffle(cards)
+        shuffle(cards)
+        shuffle(cards)
 
         players = game.player_set.all()
         self.deal_cards(

@@ -187,6 +187,11 @@
         };
     }
 
+            
+    function play(cardId) {
+        alert(`die karte ${cardId} wurde ausgewählt`);
+    };
+
     function connect() {
         gameSocket.onopen = function open() {
             console.log('WebSockets connection created.');
@@ -224,7 +229,7 @@
             const score_table = document.getElementById('score_table');
             if (score_table) {
                 players.forEach((p, i) => {
-                    console.log("Player at " + i + " is " + JSON.stringify(p));
+                    // console.log("Player at " + i + " is " + JSON.stringify(p));
                     $('#score_table').append(
                         `<tr id="R${i}">
                             <th scope="row">${p['name']}</th>
@@ -240,23 +245,27 @@
             const players_cards = data['context']["players_cards"]
             if (card_board) {
                 players_cards.forEach((c, i) => {
-                    console.log("Player card at " + i + " is " + JSON.stringify(c));
+                    // console.log("Player card at " + i + " is " + JSON.stringify(c));
                     $('#card_board').append(
                         `<div 
                             class="square" 
+                            id="card-${c['id']}"
                             data-index="${i}"
                             style="background:${c['color_value']};"
                         >
                             ${c['value']}K<br>${c['forecast_value']}
                         </div>`
                     );
+                    $('#card_board').on("click", `#card-${c['id']}`, function() {
+                        play(c['id']);
+                    });
                 });
             }
             const prio_deck1 = document.getElementById('prio_deck1');
             const prio_deck1_cards = data['context']["prio_deck1"]
             if (prio_deck1) {
                 prio_deck1_cards.forEach((c, i) => {
-                    console.log("Priority deck 1 card at " + i + " is " + JSON.stringify(c));
+                    // console.log("Priority deck 1 card at " + i + " is " + JSON.stringify(c));
                     $('#prio_deck1').append(
                         `<div 
                             class="square" 
@@ -272,7 +281,7 @@
             const prio_deck2_cards = data['context']["prio_deck2"]
             if (prio_deck2) {
                 prio_deck2_cards.forEach((c, i) => {
-                    console.log("Priority deck 2 card at " + i + " is " + JSON.stringify(c));
+                    // console.log("Priority deck 2 card at " + i + " is " + JSON.stringify(c));
                     $('#prio_deck2').append(
                         `<div 
                             class="square" 
@@ -288,7 +297,7 @@
             const table_deck_cards = data['context']["table_deck"]
             if (table_deck) {
                 table_deck_cards.forEach((c, i) => {
-                    console.log("Table card at " + i + " is " + JSON.stringify(c));
+                    // console.log("Table card at " + i + " is " + JSON.stringify(c));
                     $('#table_deck').append(
                         `<div 
                             class="square" 

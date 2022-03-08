@@ -41,48 +41,19 @@
             <div id="player_registered_1" {{ not_registered|yesno:",hidden" }}>
                 <div class="cardWrapper">
                     <div id = "card_board">
-                        {% for card in players_cards %}
-                            <div 
-                                class="square" 
-                                data-index="{{ forloop.counter0 }}"
-                                style="background:'{{ card.color }}';"
-                            >
-                            {{ card.value }} {{ card.forecast }} 
-                            </div>
-                        {% endfor %}
+
                     </div>
                 </div>
                 <div class="gameWrapper">
                     <div class="row">
-                        {% if players.0 %}
-                            <div class="col-sm">{{players.0.name}}</div>  
-                        {% else %}
-                            <div class="col-sm"></div>  
-                        {% endif %}    
-                        <div class="col-sm"></div>
-                        {% if players.1 %}
-                            <div class="col-sm">{{players.1.name}}</div>
-                        {% else %}
-                            <div class="col-sm"></div>  
-                        {% endif %}    
+                        <div class="col-sm">DA Vortail 1</div>
+                        <div class="col-sm">Tisch</div>
+                        <div class="col-sm">DA Vortail 2</div>
                     </div>
                     <div class="row">
-                        <div class="col-sm">{{prio_deck.0.pk}}</div>
-                        <div class="col-sm">Table: {{table.0.pk}}</div>
-                        <div class="col-sm">{{prio_deck.1.pk}}</div>
-                    </div>
-                    <div class="row">
-                        {% if players.2 %}
-                            <div class="col-sm">{{players.2.name}}</div>
-                        {% else %}
-                            <div class="col-sm"></div>  
-                        {% endif %}    
-                        <div class="col-sm"></div>
-                        {% if players.3 %}
-                            <div class="col-sm">{{players.3.name}}</div>
-                        {% else %}
-                            <div class="col-sm"></div>  
-                        {% endif %}    
+                        <div id = "prio_deck1" class="col-sm"></div>
+                        <div id = "table_deck" class="col-sm"></div>
+                        <div id = "prio_deck2" class="col-sm"></div>
                     </div>
                 </div>
                 </br>
@@ -276,7 +247,55 @@
                             data-index="${i}"
                             style="background:${c['color_value']};"
                         >
-                            ${c['value']}<br>${c['forecast_value']}
+                            ${c['value']}K<br>${c['forecast_value']}
+                        </div>`
+                    );
+                });
+            }
+            const prio_deck1 = document.getElementById('prio_deck1');
+            const prio_deck1_cards = data['context']["prio_deck1"]
+            if (prio_deck1) {
+                prio_deck1_cards.forEach((c, i) => {
+                    console.log("Priority deck 1 card at " + i + " is " + JSON.stringify(c));
+                    $('#prio_deck1').append(
+                        `<div 
+                            class="square" 
+                            data-index="${i}"
+                            style="background:${c['color_value']};"
+                        >
+                            ${c['value']}K<br>${c['forecast_value']}
+                        </div>`
+                    );
+                });
+            }
+            const prio_deck2 = document.getElementById('prio_deck2');
+            const prio_deck2_cards = data['context']["prio_deck2"]
+            if (prio_deck2) {
+                prio_deck2_cards.forEach((c, i) => {
+                    console.log("Priority deck 2 card at " + i + " is " + JSON.stringify(c));
+                    $('#prio_deck2').append(
+                        `<div 
+                            class="square" 
+                            data-index="${i}"
+                            style="background:${c['color_value']};"
+                        >
+                            ${c['value']}K<br>${c['forecast_value']}
+                        </div>`
+                    );
+                });
+            }
+            const table_deck = document.getElementById('table_deck');
+            const table_deck_cards = data['context']["table_deck"]
+            if (table_deck) {
+                table_deck_cards.forEach((c, i) => {
+                    console.log("Table card at " + i + " is " + JSON.stringify(c));
+                    $('#table_deck').append(
+                        `<div 
+                            class="square" 
+                            data-index="${i}"
+                            style="background:${c['color_value']};"
+                        >
+                            ${c['value']}K<br>${c['forecast_value']}
                         </div>`
                     );
                 });
@@ -301,6 +320,14 @@
         grid-gap: 0.5em;
         grid-template-columns: repeat(8, 1fr);
         width: 16em;
+        height: auto;
+        margin: 0.5em 0;
+    }
+    #prio_deck1, #prio_deck2, #table_deck {
+        display: grid;
+        grid-gap: 0.5em;
+        grid-template-columns: repeat(2, 1fr);
+        width: 8em;
         height: auto;
         margin: 0.5em 0;
     }

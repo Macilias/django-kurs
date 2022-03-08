@@ -132,7 +132,7 @@ class GameConsumer(WebsocketConsumer):
             "card_deck": CardSerializer(card_deck_cards, many=True).data,
             "prio_deck1": CardSerializer(priority_deck1_cards, many=True).data,
             "prio_deck2": CardSerializer(priority_deck2_cards, many=True).data,
-            "table": CardSerializer(table_cards, many=True).data,
+            "table_deck": CardSerializer(table_cards, many=True).data,
             "players_count": players_count,
             "ready_to_start": ready_to_start,
             "ASGI": True,
@@ -198,12 +198,12 @@ class GameConsumer(WebsocketConsumer):
         prio_deck1 = PriorityDeck(game=game)
         prio_deck1.save()
         players_count = game.player_set.count()
-        cards = self.create_cards(game=game, location=card_deck)
-        shuffle(cards)
         prio_deck2 = None
         if players_count == 2:
             prio_deck2 = PriorityDeck(game=game)
             prio_deck2.save()
+        cards = self.create_cards(game=game, location=card_deck)
+        shuffle(cards)
 
         players = game.player_set.all()
         self.deal_cards(

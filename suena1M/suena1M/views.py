@@ -59,6 +59,7 @@ def game(request, slug):
 
     context = {
         "registered": user_is_player,
+        "not_registered": not user_is_player,
         "object": game,
         "player": player,
         # "players": game.player_set.all(),

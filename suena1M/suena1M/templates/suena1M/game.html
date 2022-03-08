@@ -121,6 +121,7 @@
         <div id="game_not_started" {{ object.is_started|yesno:",hidden" }}>
             <p>GAME IS NOT STARTED</p>
             {% if not registered %}
+                <p>USER NOT IS REGISTERED</p>
                 <form action="{% url 'register' object.slug %}" method="post">
                     {% csrf_token %}
                     <div class="input-group mb-3">
@@ -133,42 +134,43 @@
                     </div>
                 </form>
             {% else %}
+                <p>USER IS REGISTERED</p>
                 {% if object.player_set.all|length > 1 and object.player_set.all|length < 5 %}
-                <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
-                    {{ object.player_set.all|length }}
-                </h3>
-                <div>
-                    <!-- Button trigger modal -->
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                            style="float: right;">
-                        Spiel starten
-                    </button>
+                    <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
+                        {{ object.player_set.all|length }}
+                    </h3>
+                    <div>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                style="float: right;">
+                            Spiel starten
+                        </button>
 
-                    <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Irgendwelche letzten Worte?</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form>
-                                        <div class="mb-3">
-                                            <label for="message-text" class="col-form-label">Nachricht an alle:</label>
-                                            <textarea id="chat-message-input" class="form-control" id="message-text" name="message"></textarea>
-                                        </div>
-                                        <input type="hidden" value="{{ variable }}" name="user_name">
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Doch nicht</button>
-                                            <button id="start-game-submit" class="btn btn-primary">Spiel starten</button>
-                                        </div>
-                                    </form>
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Irgendwelche letzten Worte?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="mb-3">
+                                                <label for="message-text" class="col-form-label">Nachricht an alle:</label>
+                                                <textarea id="chat-message-input" class="form-control" id="message-text" name="message"></textarea>
+                                            </div>
+                                            <input type="hidden" value="{{ variable }}" name="user_name">
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Doch nicht</button>
+                                                <button id="start-game-submit" class="btn btn-primary">Spiel starten</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 {% else %}
                     <h3>Warte auf weitere Mitspieler</h3>
                 {% endif %}
@@ -190,7 +192,7 @@
     const gameSlug = JSON.parse(document.getElementById('game-slug').textContent);
     const player = JSON.parse(document.getElementById('player').textContent);
     console.log("gameSlug: " + gameSlug);
-    console.log("player: " + player);
+    console.log("player: " + JSON.stringify(player));
 
     const gameSocket = new WebSocket(
         'ws://'

@@ -25,7 +25,13 @@
 <div hidden="true" id="messages-danger" class="alert alert-danger alert-dismissible fade show" role="alert">
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-
+<p>TEST</p>
+<div id="game_active" {{ object.is_inactive|yesno:",hidden" }}>
+    <p>GAME IS ACTIVE</p>
+</div>
+<div id="game_not_active" {{ object.is_active|yesno:",hidden" }}>
+    <p>GAME IS NOT ACTIVE</p>
+</div>
 {% if object.is_active %}
 {% if object.is_started %}
 {% if not registered %}
@@ -244,6 +250,10 @@
                 showAlert(message, level)
                 // document.querySelector('#messages').value = message;
             }
+            const game = data['context']['game']
+            document.getElementById('game_active').hidden = game["active"] ? false : true;
+            document.getElementById('game_not_active').hidden = game["active"] ? true : false;
+
             // alert(JSON.stringify(data['context']['players']));
             // document.querySelector('#chat-log').value += (data.message + '\n');
         };

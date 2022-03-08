@@ -68,7 +68,7 @@ class GameConsumer(WebsocketConsumer):
         # )
 
     # Receive message from room group
-    def game(self, message):
+    def game(self, message, level=1):
         game_instance = Game.objects.get(slug=self.game_name)
         game_json = model_to_dict(
             game_instance, fields=["name", "slug", "round_number", "active", "started"]
@@ -132,7 +132,7 @@ class GameConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({"context": context}))
         # async_to_sync(self.channel_layer.group_send)(
         #     self.game_group_name,
-        #     {"type": "game", "payload": json.dumps({"context": context})},
+        #     {"text_data": json.dumps({"context": context})},
         # )
 
     def deal_cards(

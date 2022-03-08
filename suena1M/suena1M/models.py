@@ -47,8 +47,14 @@ class Game(models.Model):
     def is_active(self):
         return self.active
 
+    def is_inactive(self):
+        return not self.active
+
     def is_started(self):
         return self.started
+
+    def is_not_started(self):
+        return not self.started
 
 
 class Round(models.Model):

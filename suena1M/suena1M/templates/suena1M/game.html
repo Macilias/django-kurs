@@ -32,12 +32,13 @@
         </div>
     {% endfor %}
     <div id="game_active" {{ object.is_inactive|yesno:",hidden" }}>
-        <p>GAME IS ACTIVE</p>
+        <!-- <p>GAME IS ACTIVE</p> -->
         <div id="game_started" {{ object.is_not_started|yesno:",hidden" }}>
-            <p>GAME IS STARTED</p>
-            {% if not registered %}
+            <!-- <p>GAME IS STARTED</p> -->
+            <div id="player_not_registered_1" {{ registered|yesno:",hidden" }}>
                 <h3>Das Spiel ist bereits gestartet, leider kannst du nicht mehr mitmachen, sorry.</h3>
-            {% else %}
+            </div>
+            <div id="player_registered_1" {{ not_registered|yesno:",hidden" }}>
                 <div class="cardWrapper">
                     <div id = "card_board">
                         {% for card in players_cards %}
@@ -116,17 +117,17 @@
                     {% endfor %}
                     </tbody>
                 </table>
-            {% endif %}
+            </div>
         </div>
         <div id="game_not_started" {{ object.is_started|yesno:",hidden" }}>
-            <p>GAME IS NOT STARTED</p>
-            <div id="player_not_registered" {{ registered|yesno:",hidden" }}>
-                <p>USER NOT IS REGISTERED</p>
+            <!-- <p>GAME IS NOT STARTED</p> -->
+            <div id="player_not_registered_2" {{ registered|yesno:",hidden" }}>
+                <!-- <p>USER NOT IS REGISTERED</p> -->
                 <form action="{% url 'register' object.slug %}" method="post">
                     {% csrf_token %}
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">
-                        Spieler Anzahl {{ object.player_set.all|length }}
+                            Name
                         </span>
                         <input type="text" class="form-control" placeholder="wie heisst du?" aria-label="Username"
                             aria-describedby="basic-addon1" name="name">
@@ -134,14 +135,12 @@
                     </div>
                 </form>
             </div>
-            <div id="player_registered" {{ not_registered|yesno:",hidden" }}>
-                <p>USER IS REGISTERED</p>
+            <div id="player_registered_2" {{ not_registered|yesno:",hidden" }}>
+                <!-- <p>USER IS REGISTERED</p> -->
                 <div id="ready_to_start" class="ready_to_start" not_registered|yesno:",hidden" }}>
-                    <!-- <div class="ready_to_start_text"> -->
-                        <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
-                            {{ players_count }}
-                        </h3>
-                    <!-- </div> -->
+                    <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
+                        {{ players_count }}
+                    </h3>
                     <div>
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
@@ -182,7 +181,7 @@
         </div>
     </div>
     <div id="game_not_active" {{ object.is_active|yesno:",hidden" }}>
-        <p>GAME IS NOT ACTIVE</p>
+        <!-- <p>GAME IS NOT ACTIVE</p> -->
         <h3>Das Spiel ist nicht mehr aktiv. Wenn du mitgespielt hast kannst du dir <a
             href="{% url 'results' object.slug %}">hier</a> die Ergebnisse ansehen</h3>
     </div>
@@ -255,12 +254,15 @@
             }
             const game = data['context']['game']
             const players = data['context']['players']
+            const registered = data['context']["registered"]
             document.getElementById('game_active').hidden = game["active"] ? false : true;
             document.getElementById('game_not_active').hidden = game["active"] ? true : false;
             document.getElementById('game_started').hidden = game["started"] ? false : true;
             document.getElementById('game_not_started').hidden = game["started"] ? true : false;
-            document.getElementById('player_registered').hidden = data['context']["registered"] ? false : true;
-            document.getElementById('player_not_registered').hidden = data['context']["registered"] ? true : false;
+            document.getElementById('player_registered_1').hidden = registered ? false : true;
+            document.getElementById('player_not_registered_1').hidden = registered ? true : false;
+            document.getElementById('player_registered_2').hidden = registered ? false : true;
+            document.getElementById('player_not_registered_2').hidden = registered ? true : false;
             document.getElementById('ready_to_start').hidden = data['context']["ready_to_start"] ? false : true;
             document.getElementById('registration_pending').hidden = data['context']["ready_to_start"] ? true : false;
             document.querySelector('.ready_to_start h3').firstChild.nodeValue = ready_to_start_text + " " + data['context']["players_count"];

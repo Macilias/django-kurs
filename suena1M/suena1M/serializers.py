@@ -25,6 +25,9 @@ class RoundSerializer(serializers.ModelSerializer):
 
 
 class CardSerializer(serializers.ModelSerializer):
+    color_value = serializers.CharField(source="color")
+    forecast_value = serializers.CharField(source="forecast")
+
     class Meta:
         model = Card
         fields = "__all__"

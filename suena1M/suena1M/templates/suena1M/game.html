@@ -50,15 +50,6 @@
                             {{ card.value }} {{ card.forecast }} 
                             </div>
                         {% endfor %}
-                        <!-- <div class="square" data-index = '0' style="background:aqua;"></div>
-                        <div class="square" data-index = '1'></div>
-                        <div class="square" data-index = '2'></div>
-                        <div class="square" data-index = '3'></div>
-                        <div class="square" data-index = '4'></div>
-                        <div class="square" data-index = '5'></div>
-                        <div class="square" data-index = '6'></div>
-                        <div class="square" data-index = '7'></div>
-                        <div class="square" data-index = '8'></div> -->
                     </div>
                 </div>
                 <div class="gameWrapper">
@@ -263,7 +254,31 @@
             if (score_table) {
                 players.forEach((p, i) => {
                     console.log("Player at " + i + " is " + JSON.stringify(p));
-                    $('#score_table').append(`<tr id="R${i}"><th scope="row">${p['name']}</th><td>${p['game_score']}</td><td>${p['round_score']}</td><td>${p['dam']}</td><td>${p['idm']}</td></tr>`);
+                    $('#score_table').append(
+                        `<tr id="R${i}">
+                            <th scope="row">${p['name']}</th>
+                            <td>${p['game_score']}</td>
+                            <td>${p['round_score']}</td>
+                            <td>${p['dam']}</td>
+                            <td>${p['idm']}</td>
+                        </tr>`
+                    );
+                });
+            }
+            const card_board = document.getElementById('score_table');
+            const players_cards = data['context']["players_cards"]
+            if (card_board) {
+                players_cards.forEach((c, i) => {
+                    console.log("Player card at " + i + " is " + JSON.stringify(c));
+                    $('#card_board').append(
+                        `<div 
+                            class="square" 
+                            data-index="${i}"
+                            style="background:${c['color_value']};"
+                        >
+                            ${c['value']}<br>${c['forecast_value']}
+                        </div>`
+                    );
                 });
             }
         };

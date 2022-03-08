@@ -75,11 +75,11 @@ class Card(models.Model):
     source = models.CharField(max_length=1, choices=EnergySource.choices)
 
     def __str__(self):
-        return f"[{self.game.name}] {self.value}K {EnergySource(self.source).label} forecast: {self.forecast(as_label=True)} location: {self.location}"
+        return f"[{self.game.name}] {self.value}K {EnergySource(self.source).label} forecast: {self.forecast()} location: {self.location}"
 
     def color(self):
         if self.source == EnergySource.SOLAR:
-            return "yellow"
+            return "#FFB600"
         if self.source == EnergySource.WIND:
             return "#2f76c7"
         if self.source == EnergySource.ATOMIC:
@@ -87,17 +87,12 @@ class Card(models.Model):
         if self.source == EnergySource.CARBON:
             return "black"
 
-    def forecast(self, as_label=False):
+    def forecast(self):
         if self.value == CardValue.DAME.value:
-            if not as_label:
-                return Forecast.WEATHER
-            else:
-                return Forecast(Forecast.WEATHER).label
+            return Forecast(Forecast.WEATHER).label
         if self.value == CardValue.KING.value:
-            if not as_label:
-                return Forecast.MARKET
-            else:
-                return Forecast(Forecast.MARKET).label
+            return Forecast(Forecast.MARKET).label
+        return ""
 
 
 class CardHolder(models.Model):

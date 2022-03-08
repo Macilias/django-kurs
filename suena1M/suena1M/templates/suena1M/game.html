@@ -137,9 +137,11 @@
             <div id="player_registered" {{ not_registered|yesno:",hidden" }}>
                 <p>USER IS REGISTERED</p>
                 <div id="ready_to_start" {{ not_registered|yesno:",hidden" }}>
-                    <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
-                        {{ object.player_set.all|length }}
-                    </h3>
+                    <div class="ready_to_start_text">
+                        <h3>Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits
+                            {{ players_count }}
+                        </h3>
+                    </div>
                     <div>
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
@@ -193,6 +195,7 @@
 <script>
     const gameSlug = JSON.parse(document.getElementById('game-slug').textContent);
     const player = JSON.parse(document.getElementById('player').textContent);
+    const ready_to_start_text = "Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits";
     console.log("gameSlug: " + gameSlug);
     console.log("player: " + JSON.stringify(player));
 
@@ -259,6 +262,7 @@
             document.getElementById('player_not_registered').hidden = data['context']["registered"] ? true : false;
             document.getElementById('ready_to_start').hidden = data['context']["ready_to_start"] ? false : true;
             document.getElementById('registration_pending').hidden = data['context']["ready_to_start"] ? true : false;
+            document.querySelector('.ready_to_start_text h3').firstChild.nodeValue = ready_to_start_text + " " + data['context']["players_count"];
         };
 
         gameSocket.onclose = function(e) {

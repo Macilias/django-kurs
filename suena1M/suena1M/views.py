@@ -67,6 +67,7 @@ def game(request, slug):
         "player": player,
         "players_count": players_count,
         "ready_to_start": ready_to_start,
+        "WSGI": True,
     }
     return render(request=request, template_name=template_name, context=context)
 

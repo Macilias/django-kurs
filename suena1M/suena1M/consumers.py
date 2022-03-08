@@ -92,6 +92,7 @@ class GameConsumer(WebsocketConsumer):
                 "players": PlayerSerializer(players, many=True).data,
                 "players_count": players_count,
                 "ready_to_start": ready_to_start,
+                "ASGI": True,
             }
             self.send(text_data=json.dumps({"context": context}))
             return
@@ -134,6 +135,7 @@ class GameConsumer(WebsocketConsumer):
             "table": CardSerializer(table_cards, many=True).data,
             "players_count": players_count,
             "ready_to_start": ready_to_start,
+            "ASGI": True,
         }
         self.send(text_data=json.dumps({"context": context}))
         # async_to_sync(self.channel_layer.group_send)(

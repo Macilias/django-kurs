@@ -201,7 +201,8 @@
 {{ player|json_script:"player" }}
 <script>
     const gameSlug = JSON.parse(document.getElementById('game-slug').textContent);
-    const player = JSON.parse(document.getElementById('player').textContent);
+    let player = JSON.parse(document.getElementById('player').textContent);
+    let players_turn = false;
     const ready_to_start_text = "Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits";
     const registration_pending_text = "Warte auf weitere Mitspieler. Aktuell sind es: ";
     console.log("gameSlug: " + gameSlug);
@@ -217,11 +218,11 @@
 
     function showAlert(message, level) {
         let messagesDiv = document.getElementById('messages-info');
-        if (level == "alert-success") {
+        if (level == 1) {
             messagesDiv = document.getElementById('messages-success');
-        } else if (level == "alert-warning") {
+        } else if (level == 2) {
             messagesDiv = document.getElementById('messages-warning');
-        } else if (level == "alert-danger") {
+        } else if (level == 3) {
             messagesDiv = document.getElementById('messages-danger');
         }
         messagesDiv.appendChild(document.createElement('div')).textContent=message;
@@ -240,14 +241,21 @@
             }));
         };
     }
-
             
     function play(cardId) {
-        alert(`die karte ${cardId} wurde ausgewählt`);
+        if (players_turn) {
+            alert(`die karte ${cardId} wurde ausgewählt`);
+        } else {
+            showAlert("Du bist jetzt nicht drann", 2);
+        }
     };
 
     function pass(cardId) {
-        alert(`die karte ${cardId} wird abgegeben`);
+        if (players_turn) {
+            alert(`die karte ${cardId} wird abgegeben`);
+        } else {
+            showAlert("Du bist jetzt nicht drann", 2);
+        }
     };
 
     function connect() {
@@ -275,6 +283,13 @@
                 document.getElementById('game_started').hidden = !game["started"];
                 document.getElementById('game_not_started').hidden = game["started"];
                 document.getElementById('round_0_dam').hidden = game["round_hour_number"] != 0;
+            }
+            player = data['context']['player'];
+            if (player) {
+                if (player['id'] == game["turn_hour_player"]) {
+                    players_turn = true;
+                    showAlert("Du bist drann", 1);
+                }
             }
             const registered = data['context']["registered"];
             document.getElementById('player_registered_1').hidden = !registered;

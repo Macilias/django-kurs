@@ -61,6 +61,18 @@ class GameConsumer(WebsocketConsumer):
         if action == Action.START_GAME.label:
             self.start_game(acting_player=acting_player, message=message)
 
+        if action == Action.DAM_BID.label:
+            pass
+
+        if action == Action.PRIO_PICK.label:
+            pass  # optional
+
+        if action == Action.PRIO_SPLIT.label:
+            pass
+
+        if action == Action.IDM_BID.label:
+            pass
+
         # Send message to room group
         # async_to_sync(self.channel_layer.group_send)(
         #     self.game_group_name,
@@ -90,11 +102,17 @@ class GameConsumer(WebsocketConsumer):
         if "level" in payload:
             level = payload["level"]
 
+        player = None
+        players_cards = []
+        if "player" in self.scope["session"]:
+            player = self.scope["session"]["player"]
+            players_cards = Card.objects.filter(location=player["id"])
+
         if not game_instance.is_started():
             context = {
                 "registered": user_is_player,
                 "game": game_json,
-                "player": self.scope["session"]["player"],
+                "player": player,
                 "message": message,
                 "level": level,
                 "players": PlayerSerializer(players, many=True).data,
@@ -104,12 +122,6 @@ class GameConsumer(WebsocketConsumer):
             }
             self.send(text_data=json.dumps({"context": context}))
             return
-
-        player = None
-        players_cards = []
-        if "player" in self.scope["session"]:
-            player = self.scope["session"]["player"]
-            players_cards = Card.objects.filter(location=player["id"])
 
         card_deck = game_instance.globalcarddeck_set.all().first()
         print("card_deck: ", card_deck)
@@ -147,10 +159,6 @@ class GameConsumer(WebsocketConsumer):
             "ASGI": True,
         }
         self.send(text_data=json.dumps({"context": context}))
-        # async_to_sync(self.channel_layer.group_send)(
-        #     self.game_group_name,
-        #     {"text_data": json.dumps({"context": context})},
-        # )
 
     def deal_cards(
         self,

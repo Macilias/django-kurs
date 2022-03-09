@@ -56,7 +56,60 @@
                         <div id = "prio_deck2" class="col-sm"></div>
                     </div>
                 </div>
-                </br>
+                <div id="round_0_dam" class="round_0_dam" hidden>
+                    Als erstes müssen wir feststellen wer die Day Ahead Market Auktion bedienen wird.
+                    Hierfür muss erst mal jeder Mitspieler sein Gebot abgeben.
+                    Der Gewinner der Auktion erhält das Privileg der Wahl zusätzlicher Ressourcen
+                    um sein Portfolio zu optimieren, sowie die Möglichkeit als Erster and der
+                    Intraday Auktion teilzunehmen, und damit andere in den Zugzwang zu setzen.
+                    <br>
+                    Aber die Day Ahead Auktion bringt nicht nur Vorteile. Als Gewinner der Auktion
+                    muss man den vorsprochenen Betrag auch an dem Man bringen, andererseits droht die
+                    Eisman Zahlung in Höhe des gebotenen Betrages. Als weiterer Nachteil kann
+                    der Gewinner nicht mehr an der Intraday Auktion gewinnen als bei der Day Ahead
+                    Deklariert worden ist.
+                    Nur einer kann und muss den Day Ahead Market bedienen.
+                    <br>
+                    <h3>Entscheide nun ob Du es bist!</h3>
+                    <div>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#damBidModal"
+                                style="float: right;">
+                            Gebe dein Gebot ab
+                        </button>
+
+                        <button id="da-bid-pass" class="btn btn-secondary" 
+                                style="float: right;">
+                            Danke, ich passe
+                        </button>
+    
+                        <!-- Modal -->
+                        <div class="modal fade" id="damBidModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Irgendwelche letzten Worte?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="mb-3">
+                                                <label for="message-text" class="col-form-label">Nachricht an alle:</label>
+                                                <textarea id="chat-message-input" class="form-control" id="message-text" name="message"></textarea>
+                                            </div>
+                                            <input type="hidden" value="{{ variable }}" name="user_name">
+                                            <div class="modal-footer">
+                                                <button id="da-bid-pass-modal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Danke, ich passe</button>
+                                                <button id="da-bid" type="button" class="btn btn-primary">Spiel starten</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>                            
+                <br>
                 <table class="table table-striped table-dark">
                     <thead class="thead-light">
                     <tr>
@@ -228,6 +281,7 @@
             document.getElementById('player_not_registered_2').hidden = registered ? true : false;
             document.getElementById('ready_to_start').hidden = data['context']["ready_to_start"] ? false : true;
             document.getElementById('registration_pending').hidden = data['context']["ready_to_start"] ? true : false;
+            document.getElementById('round_0_dam').hidden = game["round_number"] == 0 ? false : true;
             document.querySelector('.ready_to_start h3').firstChild.nodeValue = ready_to_start_text + " " + data['context']["players_count"];
             document.querySelector('.registration_pending h3').firstChild.nodeValue = registration_pending_text + " " + data['context']["players_count"];
             const score_table = document.getElementById('score_table');

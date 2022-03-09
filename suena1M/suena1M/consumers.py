@@ -169,8 +169,8 @@ class GameConsumer(WebsocketConsumer):
             if i < d:
                 if p == 2 and i >= 2:
                     card.location = prio_deck2
-
-                card.location = prio_deck1
+                else:
+                    card.location = prio_deck1
 
             else:
                 player = players[i % p]

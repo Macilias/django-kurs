@@ -269,23 +269,29 @@
                 showAlert(message, level)
             }
             const game = data['context']['game']
-            const players = data['context']['players']
+            if (game) {
+                document.getElementById('game_active').hidden = game["active"] ? false : true;
+                document.getElementById('game_not_active').hidden = game["active"] ? true : false;
+                document.getElementById('game_started').hidden = game["started"] ? false : true;
+                document.getElementById('game_not_started').hidden = game["started"] ? true : false;
+                document.getElementById('round_0_dam').hidden = game["round_number"] == 0 ? false : true;
+            }
             const registered = data['context']["registered"]
-            document.getElementById('game_active').hidden = game["active"] ? false : true;
-            document.getElementById('game_not_active').hidden = game["active"] ? true : false;
-            document.getElementById('game_started').hidden = game["started"] ? false : true;
-            document.getElementById('game_not_started').hidden = game["started"] ? true : false;
             document.getElementById('player_registered_1').hidden = registered ? false : true;
             document.getElementById('player_not_registered_1').hidden = registered ? true : false;
             document.getElementById('player_registered_2').hidden = registered ? false : true;
             document.getElementById('player_not_registered_2').hidden = registered ? true : false;
-            document.getElementById('ready_to_start').hidden = data['context']["ready_to_start"] ? false : true;
-            document.getElementById('registration_pending').hidden = data['context']["ready_to_start"] ? true : false;
-            document.getElementById('round_0_dam').hidden = game["round_number"] == 0 ? false : true;
-            document.querySelector('.ready_to_start h3').firstChild.nodeValue = ready_to_start_text + " " + data['context']["players_count"];
-            document.querySelector('.registration_pending h3').firstChild.nodeValue = registration_pending_text + " " + data['context']["players_count"];
+            const readyToStart = data['context']["ready_to_start"]
+            document.getElementById('ready_to_start').hidden = readyToStart ? false : true;
+            document.getElementById('registration_pending').hidden = readyToStart ? true : false;
+            const playersCount = data['context']["players_count"]
+            if (playersCount) {
+                document.querySelector('.ready_to_start h3').firstChild.nodeValue = ready_to_start_text + " " + playersCount;
+                document.querySelector('.registration_pending h3').firstChild.nodeValue = registration_pending_text + " " + playersCount;
+            }
+            const players = data['context']['players']
             const score_table = document.getElementById('score_table');
-            if (score_table) {
+            if (score_table && players) {
                 players.forEach((p, i) => {
                     // console.log("Player at " + i + " is " + JSON.stringify(p));
                     $('#score_table').append(

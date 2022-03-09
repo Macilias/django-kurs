@@ -203,6 +203,7 @@
     const gameSlug = JSON.parse(document.getElementById('game-slug').textContent);
     let player = JSON.parse(document.getElementById('player').textContent);
     let players_turn = false;
+    let round_hour_number = 0;
     const ready_to_start_text = "Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits";
     const registration_pending_text = "Warte auf weitere Mitspieler. Aktuell sind es: ";
     console.log("gameSlug: " + gameSlug);
@@ -225,6 +226,10 @@
         } else if (level == 3) {
             messagesDiv = document.getElementById('messages-danger');
         }
+        if (!messagesDiv) {
+            console.error("could not find any messageDiv for level ", level);
+            return;
+        }
         messagesDiv.appendChild(document.createElement('div')).textContent=message;
         messagesDiv.hidden = false;
     }
@@ -241,20 +246,69 @@
             }));
         };
     }
-            
+
     function play(cardId) {
+        if (!players_turn) {
+            showAlert("Du bist jetzt nicht drann", 2);
+            return;
+        }
+        if (round_hour_number != 0) {
+            return play_idm_inner(cardId);
+        } else {
+            return pass_inner(cardId);
+        }
+    }
+            
+    function play_idm_inner(cardId) {
+        console.log(`die karte ${cardId} wurde ausgewählt`);
+        const action = "IDM_BID";
+        gameSocket.send(JSON.stringify({
+            'action': action,
+            'player': player,
+            'card': cardId,
+        }));
+       
+    };
+
+    function pass_inner(cardId) {
+        console.log(`die karte ${cardId} wird abgegeben`);
+        const action = "PRIO_SPLIT";
+        gameSocket.send(JSON.stringify({
+            'action': action,
+            'player': player,
+            'card': cardId,
+        }));
+    };
+
+    function pick(deckId) {
         if (players_turn) {
-            alert(`die karte ${cardId} wurde ausgewählt`);
+            if (round_hour_number == 0) {
+                console.log(`das prio deck ${deckId} wurde gewählt`);
+                const action = "PRIO_PICK";
+                gameSocket.send(JSON.stringify({
+                    'action': action,
+                    'player': player,
+                    'deckId': deckId,
+                }));
+            } else {
+                showAlert("Das sollte nicht möglich sein", 3);    
+            }
         } else {
             showAlert("Du bist jetzt nicht drann", 2);
         }
     };
 
-    function pass(cardId) {
-        if (players_turn) {
-            alert(`die karte ${cardId} wird abgegeben`);
+    function dam_bid(value) {
+        if (round_hour_number == 0) {
+            console.log(`day ahead bid ${value} wurde deklariert`);
+            const action = "DAM_BID";
+            gameSocket.send(JSON.stringify({
+                'action': action,
+                'player': player,
+                'value': value,
+            }));
         } else {
-            showAlert("Du bist jetzt nicht drann", 2);
+            showAlert("Das sollte nicht möglich sein", 3);    
         }
     };
 
@@ -277,12 +331,13 @@
                 showAlert(message, level)
             }
             const game = data['context']['game'];
+            round_hour_number = game["round_hour_number"]
             if (game) {
                 document.getElementById('game_active').hidden = !game["active"];
                 document.getElementById('game_not_active').hidden = game["active"];
                 document.getElementById('game_started').hidden = !game["started"];
                 document.getElementById('game_not_started').hidden = game["started"];
-                document.getElementById('round_0_dam').hidden = game["round_hour_number"] != 0;
+                document.getElementById('round_0_dam').hidden = round_hour_number != 0;
             }
             player = data['context']['player'];
             if (player) {
@@ -356,7 +411,7 @@
                         </div>`
                     );
                     $('#prio_deck1').on("click", `#card-${c['id']}`, function() {
-                        pass(c['id']);
+                        pick('prio_deck1');
                     });
                 });
             }
@@ -376,7 +431,7 @@
                         </div>`
                     );
                     $('#prio_deck2').on("click", `#card-${c['id']}`, function() {
-                        pass(c['id']);
+                        pick('prio_deck2');
                     });
                 });
             }

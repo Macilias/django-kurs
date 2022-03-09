@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.forms.models import model_to_dict
 
 from .serializers import (
+    GameSerializer,
     PlayerSerializer,
     CardSerializer,
 )
@@ -23,7 +24,6 @@ from .models import (
     Player,
     PlayersCollectedDeck,
     PriorityDeck,
-    Round,
     Table,
 )
 
@@ -82,9 +82,7 @@ class GameConsumer(WebsocketConsumer):
     # Receive message from room group
     def game(self, payload):
         game_instance = Game.objects.get(slug=self.game_name)
-        game_json = model_to_dict(
-            game_instance, fields=["name", "slug", "round_number", "active", "started"]
-        )
+        game_json = GameSerializer(game_instance).data
         user_is_player = False
         if "registered_for_games" in self.scope["session"]:
             if game_instance.id in self.scope["session"]["registered_for_games"]:
@@ -219,6 +217,7 @@ class GameConsumer(WebsocketConsumer):
         if players_count == 2:
             prio_deck2 = PriorityDeck(game=game)
             prio_deck2.save()
+
         cards = self.create_cards(game=game, location=card_deck)
         shuffle(cards)
         shuffle(cards)
@@ -226,7 +225,8 @@ class GameConsumer(WebsocketConsumer):
 
         players = game.player_set.all()
         first_player = players.first()
-        game.payers_turn = first_player.id
+        game.turn_hour_player = first_player.id  # this one iterats from hour to hour
+        game.turn_day_player = first_player.id  # this one iterats from day to day
         game.save()
 
         self.deal_cards(

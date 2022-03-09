@@ -37,8 +37,10 @@ class Game(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
     time = models.DateTimeField(null=True)
-    round_number = models.IntegerField(default=0)
-    payers_turn = models.IntegerField(default=0)
+    round_hour_number = models.IntegerField(default=0)
+    round_day_number = models.IntegerField(default=0)
+    turn_hour_player = models.IntegerField(default=0)
+    turn_day_player = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     started = models.BooleanField(default=False)
 
@@ -56,16 +58,6 @@ class Game(models.Model):
 
     def is_not_started(self):
         return not self.started
-
-
-class Round(models.Model):
-    current_triumph_source = models.CharField(
-        max_length=1, choices=EnergySource.choices
-    )
-    round_number = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"round: {self.round_number} triumph: {self.current_triumph_source}"
 
 
 class Card(models.Model):

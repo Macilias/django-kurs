@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from .models import (
     Game,
-    Round,
     Card,
     Table,
     PriorityDeck,
@@ -15,12 +14,6 @@ from .models import (
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = "__all__"
-
-
-class RoundSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Round
         fields = "__all__"
 
 

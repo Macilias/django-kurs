@@ -60,7 +60,7 @@
                     Als erstes müssen wir feststellen wer die Day Ahead Market Auktion bedienen wird.
                     Hierfür muss erst mal jeder Mitspieler sein Gebot abgeben.
                     Der Gewinner der Auktion erhält das Privileg der Wahl zusätzlicher Ressourcen
-                    um sein Portfolio zu optimieren, sowie die Möglichkeit als Erster and der
+                    um sein Portfolio zu optimieren, sowie die Möglichkeit als erster an der
                     Intraday Auktion teilzunehmen, und damit andere in den Zugzwang zu setzen.
                     <br>
                     Aber die Day Ahead Auktion bringt nicht nur Vorteile. Als Gewinner der Auktion
@@ -107,6 +107,7 @@
                                 </div>
                             </div>
                         </div>
+                        <br>
                     </div>
                 </div>                            
                 <br>
@@ -273,7 +274,7 @@
                 document.getElementById('game_not_active').hidden = game["active"];
                 document.getElementById('game_started').hidden = !game["started"];
                 document.getElementById('game_not_started').hidden = game["started"];
-                document.getElementById('round_0_dam').hidden = game["round_number"] != 0;
+                document.getElementById('round_0_dam').hidden = game["round_hour_number"] != 0;
             }
             const registered = data['context']["registered"];
             document.getElementById('player_registered_1').hidden = !registered;

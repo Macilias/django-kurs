@@ -7,7 +7,6 @@ from .models import (
     PlayersCollectedDeck,
     Game,
     Player,
-    Round,
     Table,
 )
 
@@ -18,5 +17,4 @@ admin.site.register(GlobalCardDeck)
 admin.site.register(PlayersCollectedDeck)
 admin.site.register(Game)
 admin.site.register(Player)
-admin.site.register(Round)
 admin.site.register(Table)

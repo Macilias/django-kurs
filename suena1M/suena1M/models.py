@@ -38,6 +38,7 @@ class Game(models.Model):
     slug = models.SlugField(unique=True)
     time = models.DateTimeField(null=True)
     round_number = models.IntegerField(default=0)
+    payers_turn = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     started = models.BooleanField(default=False)
 

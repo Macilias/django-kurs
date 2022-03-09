@@ -247,7 +247,7 @@
             }
             const card_board = document.getElementById('score_table');
             const players_cards = data['context']["players_cards"]
-            if (card_board) {
+            if (card_board && players_cards) {
                 players_cards.forEach((c, i) => {
                     // console.log("Player card at " + i + " is " + JSON.stringify(c));
                     $('#card_board').append(
@@ -267,7 +267,7 @@
             }
             const prio_deck1 = document.getElementById('prio_deck1');
             const prio_deck1_cards = data['context']["prio_deck1"]
-            if (prio_deck1) {
+            if (prio_deck1 && prio_deck1_cards) {
                 prio_deck1_cards.forEach((c, i) => {
                     // console.log("Priority deck 1 card at " + i + " is " + JSON.stringify(c));
                     $('#prio_deck1').append(
@@ -287,7 +287,7 @@
             }
             const prio_deck2 = document.getElementById('prio_deck2');
             const prio_deck2_cards = data['context']["prio_deck2"]
-            if (prio_deck2) {
+            if (prio_deck2 && prio_deck2_cards) {
                 prio_deck2_cards.forEach((c, i) => {
                     // console.log("Priority deck 2 card at " + i + " is " + JSON.stringify(c));
                     $('#prio_deck2').append(
@@ -307,7 +307,7 @@
             }
             const table_deck = document.getElementById('table_deck');
             const table_deck_cards = data['context']["table_deck"]
-            if (table_deck) {
+            if (table_deck && table_deck_cards) {
                 table_deck_cards.forEach((c, i) => {
                     // console.log("Table card at " + i + " is " + JSON.stringify(c));
                     $('#table_deck').append(

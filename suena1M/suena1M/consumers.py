@@ -56,7 +56,7 @@ class GameConsumer(WebsocketConsumer):
             message = payload["message"]
 
         if action == Action.CONNECT.label:
-            self.game(message=None)
+            self.game(payload)
 
         if action == Action.START_GAME.label:
             self.start_game(acting_player=acting_player, message=message)
@@ -68,7 +68,7 @@ class GameConsumer(WebsocketConsumer):
         # )
 
     # Receive message from room group
-    def game(self, message, level=1):
+    def game(self, payload):
         game_instance = Game.objects.get(slug=self.game_name)
         game_json = model_to_dict(
             game_instance, fields=["name", "slug", "round_number", "active", "started"]
@@ -81,6 +81,14 @@ class GameConsumer(WebsocketConsumer):
         players = game_instance.player_set.all()
         players_count = len(players)
         ready_to_start = 2 <= players_count < 4
+
+        message = None
+        if "message" in payload:
+            message = payload["message"]
+
+        level = None
+        if "level" in payload:
+            level = payload["level"]
 
         if not game_instance.is_started():
             context = {
@@ -127,6 +135,7 @@ class GameConsumer(WebsocketConsumer):
             "game": game_json,
             "player": player,
             "message": message,
+            "level": level,
             "players": PlayerSerializer(players, many=True).data,
             "players_cards": CardSerializer(players_cards, many=True).data,
             "card_deck": CardSerializer(card_deck_cards, many=True).data,
@@ -208,6 +217,10 @@ class GameConsumer(WebsocketConsumer):
         shuffle(cards)
 
         players = game.player_set.all()
+        first_player = players.first()
+        game.payers_turn = first_player.id
+        game.save()
+
         self.deal_cards(
             card_deck_cards=cards,
             players=players,
@@ -224,5 +237,6 @@ class GameConsumer(WebsocketConsumer):
             {
                 "type": "game",
                 "message": message,
+                "level": 1,
             },
         )

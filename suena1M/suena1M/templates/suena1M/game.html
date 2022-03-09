@@ -262,34 +262,33 @@
         gameSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log("DATA: ", JSON.stringify(data));
-            const message = data['context']['message']
-            const level = data['context']['level']
+            const message = data['context']['message'];
+            const level = data['context']['level'];
             if (message) {
-                console.log("APPENIDNG MESSAGE: ", message)
                 showAlert(message, level)
             }
-            const game = data['context']['game']
+            const game = data['context']['game'];
             if (game) {
-                document.getElementById('game_active').hidden = game["active"] ? false : true;
-                document.getElementById('game_not_active').hidden = game["active"] ? true : false;
-                document.getElementById('game_started').hidden = game["started"] ? false : true;
-                document.getElementById('game_not_started').hidden = game["started"] ? true : false;
-                document.getElementById('round_0_dam').hidden = game["round_number"] == 0 ? false : true;
+                document.getElementById('game_active').hidden = !game["active"];
+                document.getElementById('game_not_active').hidden = game["active"];
+                document.getElementById('game_started').hidden = !game["started"];
+                document.getElementById('game_not_started').hidden = game["started"];
+                document.getElementById('round_0_dam').hidden = game["round_number"] != 0;
             }
-            const registered = data['context']["registered"]
-            document.getElementById('player_registered_1').hidden = registered ? false : true;
-            document.getElementById('player_not_registered_1').hidden = registered ? true : false;
-            document.getElementById('player_registered_2').hidden = registered ? false : true;
-            document.getElementById('player_not_registered_2').hidden = registered ? true : false;
+            const registered = data['context']["registered"];
+            document.getElementById('player_registered_1').hidden = !registered;
+            document.getElementById('player_not_registered_1').hidden = registered;
+            document.getElementById('player_registered_2').hidden = !registered;
+            document.getElementById('player_not_registered_2').hidden = registered;
             const readyToStart = data['context']["ready_to_start"]
-            document.getElementById('ready_to_start').hidden = readyToStart ? false : true;
-            document.getElementById('registration_pending').hidden = readyToStart ? true : false;
-            const playersCount = data['context']["players_count"]
+            document.getElementById('ready_to_start').hidden = !readyToStart;
+            document.getElementById('registration_pending').hidden = readyToStart;
+            const playersCount = data['context']["players_count"];
             if (playersCount) {
                 document.querySelector('.ready_to_start h3').firstChild.nodeValue = ready_to_start_text + " " + playersCount;
                 document.querySelector('.registration_pending h3').firstChild.nodeValue = registration_pending_text + " " + playersCount;
             }
-            const players = data['context']['players']
+            const players = data['context']['players'];
             const score_table = document.getElementById('score_table');
             if (score_table && players) {
                 players.forEach((p, i) => {
@@ -306,7 +305,7 @@
                 });
             }
             const card_board = document.getElementById('score_table');
-            const players_cards = data['context']["players_cards"]
+            const players_cards = data['context']["players_cards"];
             if (card_board && players_cards) {
                 players_cards.forEach((c, i) => {
                     // console.log("Player card at " + i + " is " + JSON.stringify(c));
@@ -326,7 +325,7 @@
                 });
             }
             const prio_deck1 = document.getElementById('prio_deck1');
-            const prio_deck1_cards = data['context']["prio_deck1"]
+            const prio_deck1_cards = data['context']["prio_deck1"];
             if (prio_deck1 && prio_deck1_cards) {
                 prio_deck1_cards.forEach((c, i) => {
                     // console.log("Priority deck 1 card at " + i + " is " + JSON.stringify(c));
@@ -346,7 +345,7 @@
                 });
             }
             const prio_deck2 = document.getElementById('prio_deck2');
-            const prio_deck2_cards = data['context']["prio_deck2"]
+            const prio_deck2_cards = data['context']["prio_deck2"];
             if (prio_deck2 && prio_deck2_cards) {
                 prio_deck2_cards.forEach((c, i) => {
                     // console.log("Priority deck 2 card at " + i + " is " + JSON.stringify(c));
@@ -366,7 +365,7 @@
                 });
             }
             const table_deck = document.getElementById('table_deck');
-            const table_deck_cards = data['context']["table_deck"]
+            const table_deck_cards = data['context']["table_deck"];
             if (table_deck && table_deck_cards) {
                 table_deck_cards.forEach((c, i) => {
                     // console.log("Table card at " + i + " is " + JSON.stringify(c));

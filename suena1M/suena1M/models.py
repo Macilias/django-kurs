@@ -27,7 +27,7 @@ class Forecast(models.TextChoices):
 class CardValue(models.IntegerChoices):
     NEUN = 0
     ZEHN = 10
-    JACK = 2
+    BUBE = 2
     DAME = 3
     KING = 4
     ASS = 11
@@ -43,6 +43,9 @@ class Game(models.Model):
     turn_day_player = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     started = models.BooleanField(default=False)
+    current_domination = models.CharField(
+        max_length=1, choices=EnergySource.choices, null=True
+    )
 
     def __str__(self):
         return f"{self.name} ({self.slug})"
@@ -65,7 +68,7 @@ class Card(models.Model):
     location = models.ForeignKey(to="CardHolder", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     value = models.IntegerField(choices=CardValue.choices)
-    source = models.CharField(max_length=1, choices=EnergySource.choices)
+    source = models.CharField(max_length=1, choices=EnergySource.choices, null=False)
 
     def __str__(self):
         return f"[{self.game.name}] {self.value}K {EnergySource(self.source).label} forecast: {self.forecast()} location: {self.location}"

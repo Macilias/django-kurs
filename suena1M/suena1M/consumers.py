@@ -51,18 +51,23 @@ class GameConsumer(WebsocketConsumer):
         payload = json.loads(text_data)
         action = payload["action"]
         acting_player = payload["player"]
-        message = None
-        if "message" in payload:
-            message = payload["message"]
 
         if action == Action.CONNECT.label:
             self.game(payload)
 
         if action == Action.START_GAME.label:
+            message = None
+            if "message" in payload:
+                message = payload["message"]
             self.start_game(acting_player=acting_player, message=message)
 
         if action == Action.DAM_BID.label:
-            pass
+            value = None
+            if "value" in payload:
+                value = payload["value"]
+                self.dam_bid(acting_player=acting_player, value=value)
+            else:
+                print("could not find vlaue in payload")
 
         if action == Action.PRIO_PICK.label:
             pass  # optional
@@ -246,5 +251,34 @@ class GameConsumer(WebsocketConsumer):
                 "type": "game",
                 "message": message,
                 "level": 1,
+            },
+        )
+
+    def dam_bid(self, acting_player, value):
+        game = Game.objects.get(slug=self.game_name)
+        if not game.is_started():
+            print(f"game {game.name} has not started yet!")
+            return
+
+        print(f"{acting_player.get('name')} is bidding {value} in game: {game.name}")
+        players = game.player_set.all()
+        bidding_done = True
+        highest_value = 0
+        for player in players:
+            if player.id == acting_player.get("id"):
+                highest_value = max(highest_value, value)
+                player.dam = value
+                player.save()
+            elif player.dam:
+                highest_value = max(highest_value, value)
+                bidding_done = False
+
+        # Send message to room group
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_group_name,
+            {
+                "type": "game",
+                "bidding_done": bidding_done,
+                "highest_value": highest_value,
             },
         )

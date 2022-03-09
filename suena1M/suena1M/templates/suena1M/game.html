@@ -88,19 +88,19 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Irgendwelche letzten Worte?</h5>
+                                        <h5 class="modal-title" id="exampleModalLabel">Bereit für den Day Ahead Market?</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <form>
                                             <div class="mb-3">
-                                                <label for="message-text" class="col-form-label">Nachricht an alle:</label>
-                                                <textarea id="chat-message-input" class="form-control" id="message-text" name="message"></textarea>
+                                                <label for="message-text" class="col-form-label">Wie viel bietest Du?:</label>
+                                                <input type="number" id="da-bid-value" class="form-control" id="message-text"></input>
                                             </div>
                                             <input type="hidden" value="{{ variable }}" name="user_name">
                                             <div class="modal-footer">
                                                 <button id="da-bid-pass-modal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Danke, ich passe</button>
-                                                <button id="da-bid" type="button" class="btn btn-primary">Spiel starten</button>
+                                                <button id="da-bid" type="button" class="btn btn-primary">Gebot abgeben</button>
                                             </div>
                                         </form>
                                     </div>
@@ -244,6 +244,13 @@
                 'player': player,
                 'message': message,
             }));
+        };
+    }
+
+    if (document.querySelector('#da-bid')) {
+        document.querySelector('#da-bid').onclick = function(e) {
+            const value = document.querySelector('#da-bid-value').value;
+            dam_bid(value);
         };
     }
 

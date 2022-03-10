@@ -134,8 +134,8 @@ class PlayersCollectedDeck(CardHolder):
 class Player(CardHolder):
     game = models.ForeignKey(to="Game", on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
-    dam = models.IntegerField(default=0)
-    idm = models.IntegerField(default=0)
+    dam = models.IntegerField(null=True)
+    idm = models.IntegerField(null=True)
     round_score = models.IntegerField(default=0)
     game_score = models.IntegerField(default=0)
 

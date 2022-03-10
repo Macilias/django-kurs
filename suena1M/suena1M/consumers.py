@@ -70,12 +70,15 @@ class GameConsumer(WebsocketConsumer):
                 print("could not find vlaue in payload")
 
         if action == Action.PRIO_PICK.label:
+            print(Action.PRIO_PICK.label, payload)
             pass  # optional
 
         if action == Action.PRIO_SPLIT.label:
+            print(Action.PRIO_SPLIT.label, payload)
             pass
 
         if action == Action.IDM_BID.label:
+            print(Action.IDM_BID.label, payload)
             pass
 
         # Send message to room group
@@ -110,6 +113,33 @@ class GameConsumer(WebsocketConsumer):
         if "player" in self.scope["session"]:
             player = self.scope["session"]["player"]
             players_cards = Card.objects.filter(location=player["id"])
+
+        # round_hour_number
+        if "dam_highest_value" in payload:
+            bidding_done = payload["dam_bidding_done"]
+            if bidding_done:
+                game_instance.round_hour_number += 1
+                game_instance.save()
+                game_json = GameSerializer(game_instance).data
+
+            highest_value = payload["dam_highest_value"]
+            highest_bidder_id = payload["dam_highest_bidder_id"]
+            highest_bidder_name = payload["dam_highest_bidder_name"]
+            context = {
+                "registered": user_is_player,
+                "game": game_json,
+                "player": player,
+                "message": message,
+                "level": level,
+                "players": PlayerSerializer(players, many=True).data,
+                "dam_bidding_done": bidding_done,
+                "dam_highest_value": highest_value,
+                "dam_highest_bidder_id": highest_bidder_id,
+                "dam_highest_bidder_name": highest_bidder_name,
+                "ASGI": True,
+            }
+            self.send(text_data=json.dumps({"context": context}))
+            return
 
         if not game_instance.is_started():
             context = {
@@ -230,6 +260,8 @@ class GameConsumer(WebsocketConsumer):
 
         players = game.player_set.all()
         first_player = players.first()
+        first_player.dam = 100
+        first_player.save()
         game.turn_hour_player = first_player.id  # this one iterats from hour to hour
         game.turn_day_player = first_player.id  # this one iterats from day to day
         game.save()
@@ -256,29 +288,36 @@ class GameConsumer(WebsocketConsumer):
 
     def dam_bid(self, acting_player, value):
         game = Game.objects.get(slug=self.game_name)
+        value = int(value)
         if not game.is_started():
             print(f"game {game.name} has not started yet!")
             return
 
         print(f"{acting_player.get('name')} is bidding {value} in game: {game.name}")
         players = game.player_set.all()
-        bidding_done = True
+        pass_count = 0
         highest_value = 0
+        highest_bidder_id = None
+        highest_bidder_name = None
         for player in players:
             if player.id == acting_player.get("id"):
-                highest_value = max(highest_value, value)
                 player.dam = value
                 player.save()
-            elif player.dam:
-                highest_value = max(highest_value, value)
-                bidding_done = False
+            if player.dam is not None and player.dam == 0:
+                pass_count += 1
+            if player.dam > highest_value:
+                highest_value = player.dam
+                highest_bidder_id = player.id
+                highest_bidder_name = player.name
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.game_group_name,
             {
                 "type": "game",
-                "bidding_done": bidding_done,
-                "highest_value": highest_value,
+                "dam_bidding_done": pass_count + 1 == len(players),
+                "dam_highest_value": highest_value,
+                "dam_highest_bidder_id": highest_bidder_id,
+                "dam_highest_bidder_name": highest_bidder_name,
             },
         )

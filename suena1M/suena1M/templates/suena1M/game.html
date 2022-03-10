@@ -95,7 +95,7 @@
                                         <form>
                                             <div class="mb-3">
                                                 <label for="message-text" class="col-form-label">Wie viel bietest Du?:</label>
-                                                <input type="number" id="da-bid-value" class="form-control" id="message-text"></input>
+                                                <input type="number" min="100" step="10" max="360" id="da-bid-value" class="form-control" id="message-text"></input>
                                             </div>
                                             <input type="hidden" value="{{ variable }}" name="user_name">
                                             <div class="modal-footer">
@@ -251,6 +251,15 @@
         document.querySelector('#da-bid').onclick = function(e) {
             const value = document.querySelector('#da-bid-value').value;
             dam_bid(value);
+        };
+    }
+
+    if (document.querySelector('#da-bid-pass')) {
+        document.querySelector('#da-bid-pass').onclick = function(e) {
+            dam_bid(0);
+        };
+        document.querySelector('#da-bid-pass-modal').onclick = function(e) {
+            dam_bid(0);
         };
     }
 
@@ -458,6 +467,28 @@
                         </div>`
                     );
                 });
+            }
+            const highest_value = data['context']["highest_value"];
+            if (highest_value) {
+                document.getElementById('da-bid-value').min = highest_value + 10;
+            }
+            if (round_hour_number == 0 && players_turn) {
+                document.getElementById('da-bid-value').min = 110;
+                const value = document.querySelector('#da-bid-value').value;
+                if (value < 110) {
+                    document.getElementById('da-bid-pass').disabled = true;
+                    document.getElementById('da-bid-pass-modal').disabled = true;
+                }
+            }
+            const highest_bidder_id = data['context']["highest_bidder_id"];
+            const highest_bidder_name = data['context']["highest_bidder_name"];
+            const bidding_done = data['context']["bidding_done"];
+            if (bidding_done && highest_value && highest_bidder_id && highest_bidder_name) {
+                if (highest_bidder_id == player['id']) {
+                    showAlert(`Gratulationen, du hast die Day Ahead Market Auktion mit deinen Gebot von ${highest_value} gewonnen!`, 1);
+                } else {
+                    showAlert(`${highest_bidder_name} hat die Day Ahead Market Auktion mit deinen Gebot von ${highest_value} gewonnen!`, 1);
+                }
             }
         };
 

@@ -1,6 +1,5 @@
-import enum
+from django.utils import timezone
 from django.db import models
-from enum import Enum
 
 
 class Action(models.TextChoices):
@@ -36,7 +35,8 @@ class CardValue(models.IntegerChoices):
 class Game(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True)
-    time = models.DateTimeField(null=True)
+    created = models.DateTimeField(editable=False)
+    modified = models.DateTimeField()
     round_hour_number = models.IntegerField(default=0)
     round_day_number = models.IntegerField(default=0)
     turn_hour_player = models.IntegerField(default=0)
@@ -44,7 +44,7 @@ class Game(models.Model):
     active = models.BooleanField(default=True)
     started = models.BooleanField(default=False)
     current_domination = models.CharField(
-        max_length=1, choices=EnergySource.choices, null=True
+        max_length=1, choices=EnergySource.choices, blank=True, null=True
     )
 
     def __str__(self):
@@ -61,6 +61,13 @@ class Game(models.Model):
 
     def is_not_started(self):
         return not self.started
+
+    def save(self, *args, **kwargs):
+        """On save, update timestamps"""
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        return super(Game, self).save(*args, **kwargs)
 
 
 class Card(models.Model):

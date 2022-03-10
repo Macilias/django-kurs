@@ -369,6 +369,7 @@
             const players = data['context']['players'];
             const score_table = document.getElementById('score_table');
             if (score_table && players) {
+                $('#score_table').empty();
                 players.forEach((p, i) => {
                     // console.log("Player at " + i + " is " + JSON.stringify(p));
                     $('#score_table').append(

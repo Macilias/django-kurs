@@ -392,8 +392,8 @@
                             <th scope="row">${p['name']}</th>
                             <td>${p['game_score']}</td>
                             <td>${p['round_score']}</td>
-                            <td>${p['dam']}</td>
-                            <td>${p['idm']}</td>
+                            <td>${p['dam'] ? p['dam'] : '-'}</td>
+                            <td>${p['idm'] ? p['idm'] : '-'}</td>
                         </tr>`
                     );
                 });

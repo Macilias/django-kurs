@@ -117,18 +117,34 @@ class GameConsumer(WebsocketConsumer):
         # round_hour_number
         if "dam_highest_value" in payload:
             bidding_done = payload["dam_bidding_done"]
+            highest_bidder_id = payload["dam_highest_bidder_id"]
+            selected_prio_deck = 0
             if bidding_done:
                 game_instance.round_hour_number += 1
+                if players_count > 2:
+                    selected_prio_deck = 1
+                    game_instance.round_hour_number += 1
+                # if players_count > 2:
+                #     priority_decks = game_instance.prioritydeck_set.all()
+                #     priority_deck1_cards = Card.objects.filter(
+                #         location=priority_decks[0].id
+                #     )
+                #     for card in priority_deck1_cards:
+                #         card.location = highest_bidder_id
+                #         card.save()
+                #     players_cards = Card.objects.filter(location=player["id"])
+                #     game_instance.round_hour_number += 1
                 game_instance.save()
                 game_json = GameSerializer(game_instance).data
 
             highest_value = payload["dam_highest_value"]
-            highest_bidder_id = payload["dam_highest_bidder_id"]
             highest_bidder_name = payload["dam_highest_bidder_name"]
             context = {
                 "registered": user_is_player,
                 "game": game_json,
                 "player": player,
+                "selected_prio_deck": selected_prio_deck,
+                # "players_cards": CardSerializer(players_cards, many=True).data,
                 "message": message,
                 "level": level,
                 "players": PlayerSerializer(players, many=True).data,

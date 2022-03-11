@@ -318,7 +318,7 @@
     function dam_bid(value) {
         if (round_hour_number == 0) {
             console.log(`day ahead bid ${value} wurde deklariert`);
-            if (value <= dam_highest_value) {
+            if (value != 0 && value <= dam_highest_value) {
                 showAlert(`das Höhstbebot beträgt bereits ${dam_highest_value}`, 3);  
                 return;
             }
@@ -485,7 +485,7 @@
                 if (players_turn) {
                     document.getElementById('da-bid-value').min = 110;
                     const value = document.querySelector('#da-bid-value').value;
-                    if (value < 110) {
+                    if (dam_highest_value == 0) {
                         document.getElementById('da-bid-pass').disabled = true;
                         document.getElementById('da-bid-pass-modal').disabled = true;
                     }
@@ -508,7 +508,7 @@
                 if (dam_highest_bidder_id == player['id']) {
                     showAlert(`Gratulationen, du hast die Day Ahead Market Auktion mit deinen Gebot von ${dam_highest_value} gewonnen!`, 1);
                 } else {
-                    showAlert(`${dam_highest_bidder_name} hat die Day Ahead Market Auktion mit deinen Gebot von ${dam_highest_value} gewonnen!`, 1);
+                    showAlert(`${dam_highest_bidder_name} hat die Day Ahead Market Auktion mit einen Gebot von ${dam_highest_value} gewonnen!`, 1);
                 }
             }
         };

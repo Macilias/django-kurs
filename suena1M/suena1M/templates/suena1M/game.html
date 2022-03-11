@@ -204,6 +204,7 @@
     let player = JSON.parse(document.getElementById('player').textContent);
     let players_turn = false;
     let round_hour_number = 0;
+    let dam_highest_value = 0;
     const ready_to_start_text = "Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits";
     const registration_pending_text = "Warte auf weitere Mitspieler. Aktuell sind es: ";
     console.log("gameSlug: " + gameSlug);
@@ -326,6 +327,11 @@
         } else {
             showAlert("Das sollte nicht möglich sein", 3);    
         }
+    };
+
+    function on_dam_value_change(value) {
+        console.log(`changed to ${value}, highes is: ${dam_highest_value}`);  
+        document.getElementById('da-bid').disabled = value < dam_highest_value;
     };
 
     function connect() {
@@ -468,26 +474,35 @@
                     );
                 });
             }
-            const highest_value = data['context']["highest_value"];
-            if (highest_value) {
-                document.getElementById('da-bid-value').min = highest_value + 10;
+            if (data['context']["dam_highest_value"]) {
+                dam_highest_value = data['context']["dam_highest_value"];
             }
-            if (round_hour_number == 0 && players_turn) {
-                document.getElementById('da-bid-value').min = 110;
-                const value = document.querySelector('#da-bid-value').value;
-                if (value < 110) {
-                    document.getElementById('da-bid-pass').disabled = true;
-                    document.getElementById('da-bid-pass-modal').disabled = true;
+            if (round_hour_number == 0) {
+                if (players_turn) {
+                    document.getElementById('da-bid-value').min = 110;
+                    const value = document.querySelector('#da-bid-value').value;
+                    if (value < 110) {
+                        document.getElementById('da-bid-pass').disabled = true;
+                        document.getElementById('da-bid-pass-modal').disabled = true;
+                    }
+                } 
+                if (dam_highest_value) {
+                    document.getElementById('da-bid-value').min = dam_highest_value + 10;
+                    const value = document.querySelector('#da-bid-value').value;
+                    document.getElementById('da-bid').disabled = value < dam_highest_value;
                 }
+                $('#da-bid-value').bind('keyup mouseup', function () {
+                    on_dam_value_change($(this).val());            
+                });
             }
-            const highest_bidder_id = data['context']["highest_bidder_id"];
-            const highest_bidder_name = data['context']["highest_bidder_name"];
-            const bidding_done = data['context']["bidding_done"];
-            if (bidding_done && highest_value && highest_bidder_id && highest_bidder_name) {
-                if (highest_bidder_id == player['id']) {
-                    showAlert(`Gratulationen, du hast die Day Ahead Market Auktion mit deinen Gebot von ${highest_value} gewonnen!`, 1);
+            const dam_highest_bidder_id = data['context']["dam_highest_bidder_id"];
+            const dam_highest_bidder_name = data['context']["dam_highest_bidder_name"];
+            const dam_bidding_done = data['context']["dam_bidding_done"];
+            if (dam_bidding_done && dam_highest_value && dam_highest_bidder_id && dam_highest_bidder_name) {
+                if (dam_highest_bidder_id == player['id']) {
+                    showAlert(`Gratulationen, du hast die Day Ahead Market Auktion mit deinen Gebot von ${dam_highest_value} gewonnen!`, 1);
                 } else {
-                    showAlert(`${highest_bidder_name} hat die Day Ahead Market Auktion mit deinen Gebot von ${highest_value} gewonnen!`, 1);
+                    showAlert(`${dam_highest_bidder_name} hat die Day Ahead Market Auktion mit deinen Gebot von ${dam_highest_value} gewonnen!`, 1);
                 }
             }
         };

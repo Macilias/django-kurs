@@ -172,6 +172,12 @@ class GameConsumer(WebsocketConsumer):
             self.send(text_data=json.dumps({"context": context}))
             return
 
+        dam_highest_value = 100
+        if game_instance.round_hour_number == 0:
+            for p in players:
+                if p.dam is not None and p.dam > dam_highest_value:
+                    dam_highest_value = p.dam
+
         card_deck = game_instance.globalcarddeck_set.all().first()
         print("card_deck: ", card_deck)
         card_deck_cards = Card.objects.filter(location=card_deck.id)
@@ -205,6 +211,7 @@ class GameConsumer(WebsocketConsumer):
             "table_deck": CardSerializer(table_cards, many=True).data,
             "players_count": players_count,
             "ready_to_start": ready_to_start,
+            "dam_highest_value": dam_highest_value,
             "ASGI": True,
         }
         self.send(text_data=json.dumps({"context": context}))
@@ -304,7 +311,12 @@ class GameConsumer(WebsocketConsumer):
 
     def dam_bid(self, acting_player, value):
         game = Game.objects.get(slug=self.game_name)
-        value = int(value)
+        try:
+            value = int(value)
+        except TypeError:
+            print(f"ERROR: can not parse value: {value}")
+            return
+
         if not game.is_started():
             print(f"game {game.name} has not started yet!")
             return
@@ -319,12 +331,13 @@ class GameConsumer(WebsocketConsumer):
             if player.id == acting_player.get("id"):
                 player.dam = value
                 player.save()
-            if player.dam is not None and player.dam == 0:
-                pass_count += 1
-            if player.dam > highest_value:
-                highest_value = player.dam
-                highest_bidder_id = player.id
-                highest_bidder_name = player.name
+            if player.dam is not None:
+                if player.dam == 0:
+                    pass_count += 1
+                if player.dam > highest_value:
+                    highest_value = player.dam
+                    highest_bidder_id = player.id
+                    highest_bidder_name = player.name
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(

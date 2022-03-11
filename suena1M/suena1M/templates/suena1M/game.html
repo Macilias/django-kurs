@@ -204,7 +204,7 @@
     let player = JSON.parse(document.getElementById('player').textContent);
     let players_turn = false;
     let round_hour_number = 0;
-    let dam_highest_value = 0;
+    let dam_highest_value = 100;
     const ready_to_start_text = "Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits";
     const registration_pending_text = "Warte auf weitere Mitspieler. Aktuell sind es: ";
     console.log("gameSlug: " + gameSlug);
@@ -318,6 +318,10 @@
     function dam_bid(value) {
         if (round_hour_number == 0) {
             console.log(`day ahead bid ${value} wurde deklariert`);
+            if (value <= dam_highest_value) {
+                showAlert(`das Höhstbebot beträgt bereits ${dam_highest_value}`, 3);  
+                return;
+            }
             const action = "DAM_BID";
             gameSocket.send(JSON.stringify({
                 'action': action,
@@ -489,7 +493,9 @@
                 if (dam_highest_value) {
                     document.getElementById('da-bid-value').min = dam_highest_value + 10;
                     const value = document.querySelector('#da-bid-value').value;
-                    document.getElementById('da-bid').disabled = value < dam_highest_value;
+                    if (value) {
+                        document.getElementById('da-bid').disabled = value < dam_highest_value;
+                    }
                 }
                 $('#da-bid-value').bind('keyup mouseup', function () {
                     on_dam_value_change($(this).val());            

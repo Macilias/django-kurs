@@ -269,10 +269,10 @@
             showAlert("Du bist jetzt nicht drann", 2);
             return;
         }
-        if (round_hour_number != 0) {
-            return play_idm_inner(cardId);
-        } else {
+        if (round_hour_number == 3) {
             return pass_inner(cardId);
+        } else if (round_hour_number > 3) {
+            return play_idm_inner(cardId);
         }
     }
             
@@ -284,7 +284,6 @@
             'player': player,
             'card': cardId,
         }));
-       
     };
 
     function pass_inner(cardId) {
@@ -299,7 +298,7 @@
 
     function pick(deckId) {
         if (players_turn) {
-            if (round_hour_number == 0) {
+            if (round_hour_number == 1) {
                 console.log(`das prio deck ${deckId} wurde gewählt`);
                 const action = "PRIO_PICK";
                 gameSocket.send(JSON.stringify({
@@ -308,7 +307,7 @@
                     'deckId': deckId,
                 }));
             } else {
-                showAlert("Das sollte nicht möglich sein", 3);    
+                console.log(`the round_hour_number is not 1, its ${round_hour_number}`);
             }
         } else {
             showAlert("Du bist jetzt nicht drann", 2);
@@ -317,6 +316,10 @@
 
     function dam_bid(value) {
         if (round_hour_number == 0) {
+            if (players_turn && value == 0 && dam_highest_value == 100 ) {
+                showAlert("Du fängst diese Runde an, solange kein anderer etwas bietet kannst du nicht passen.", 2);
+                return;
+            }
             console.log(`day ahead bid ${value} wurde deklariert`);
             if (value != 0 && value <= dam_highest_value) {
                 showAlert(`das Höhstbebot beträgt bereits ${dam_highest_value}`, 3);  
@@ -356,9 +359,13 @@
             if (message) {
                 showAlert(message, level)
             }
+            if (data['context']['messageOnly']) {
+                // the context was all about simple feedback 
+                return
+            }
             const game = data['context']['game'];
-            round_hour_number = game["round_hour_number"]
             if (game) {
+                round_hour_number = game["round_hour_number"]
                 document.getElementById('game_active').hidden = !game["active"];
                 document.getElementById('game_not_active').hidden = game["active"];
                 document.getElementById('game_started').hidden = !game["started"];
@@ -370,6 +377,8 @@
                 if (player['id'] == game["turn_hour_player"]) {
                     players_turn = true;
                     showAlert("Du bist drann", 1);
+                } else {
+                    players_turn = false;
                 }
             }
             const registered = data['context']["registered"];
@@ -405,6 +414,7 @@
             const card_board = document.getElementById('score_table');
             const players_cards = data['context']["players_cards"];
             if (card_board && players_cards) {
+                $('#card_board').empty();
                 players_cards.forEach((c, i) => {
                     // console.log("Player card at " + i + " is " + JSON.stringify(c));
                     $('#card_board').append(
@@ -424,47 +434,61 @@
             }
             const prio_deck1 = document.getElementById('prio_deck1');
             const prio_deck1_cards = data['context']["prio_deck1"];
+            const selected_prio_deck = data['context']["selected_prio_deck"];
+            let style = "background:red;"
+            let label = "";
             if (prio_deck1 && prio_deck1_cards) {
+                $('#prio_deck1').empty();
                 prio_deck1_cards.forEach((c, i) => {
                     // console.log("Priority deck 1 card at " + i + " is " + JSON.stringify(c));
+                    if (round_hour_number == 2 && selected_prio_deck == 1) {
+                        style = `"background:${c['color_value']};"`;
+                        label = `${c['value']}K<br>${c['forecast_value']}`;
+                    }
                     $('#prio_deck1').append(
                         `<div 
                             class="square" 
                             id="card-${c['id']}"
                             data-index="${i}"
-                            style="background:${c['color_value']};"
+                            style="${style}"
                         >
-                            ${c['value']}K<br>${c['forecast_value']}
+                            ${label}
                         </div>`
                     );
                     $('#prio_deck1').on("click", `#card-${c['id']}`, function() {
-                        pick('prio_deck1');
+                        pick(1);
                     });
                 });
             }
             const prio_deck2 = document.getElementById('prio_deck2');
             const prio_deck2_cards = data['context']["prio_deck2"];
             if (prio_deck2 && prio_deck2_cards) {
+                $('#prio_deck2').empty();
                 prio_deck2_cards.forEach((c, i) => {
                     // console.log("Priority deck 2 card at " + i + " is " + JSON.stringify(c));
+                    if (round_hour_number == 2 && selected_prio_deck == 2) {
+                        style = `"background:${c['color_value']};"`;
+                        label = `${c['value']}K<br>${c['forecast_value']}`;
+                    }
                     $('#prio_deck2').append(
                         `<div 
-                            class="square"
-                            id="card-${c['id']}" 
+                            class="square" 
+                            id="card-${c['id']}"
                             data-index="${i}"
-                            style="background:${c['color_value']};"
+                            style="${style}"
                         >
-                            ${c['value']}K<br>${c['forecast_value']}
+                            ${label}
                         </div>`
                     );
                     $('#prio_deck2').on("click", `#card-${c['id']}`, function() {
-                        pick('prio_deck2');
+                        pick(2);
                     });
                 });
             }
             const table_deck = document.getElementById('table_deck');
             const table_deck_cards = data['context']["table_deck"];
             if (table_deck && table_deck_cards) {
+                $('#table_deck').empty();
                 table_deck_cards.forEach((c, i) => {
                     // console.log("Table card at " + i + " is " + JSON.stringify(c));
                     $('#table_deck').append(

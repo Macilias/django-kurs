@@ -1,14 +1,24 @@
 from django.utils import timezone
 from django.db import models
+from enum import Enum
 
 
 class Action(models.TextChoices):
     CONNECT = "CON", "CONNECT"
     START_GAME = "STA", "START_GAME"
-    PRIO_PICK = "PIC", "PRIO_PICK"  # only when 2 players are playing
-    PRIO_SPLIT = "SPL", "PRIO_SPLIT"
-    DAM_BID = "DAM", "DAM_BID"
-    IDM_BID = "IDM", "IDM_BID"
+    PRIO_PICK = "PIC", "PRIO_PICK"  # round 1 - only when 2 players are playing
+    # prio show and subsequent prio consume is called autmatically after 5 sec and is round 2
+    PRIO_SPLIT = "SPL", "PRIO_SPLIT"  # round 3
+    DAM_BID = "DAM", "DAM_BID"  # round 0
+    IDM_BID = "IDM", "IDM_BID"  # round 4-N
+
+
+class RoundPurpose(Enum):
+    DAM_BID = 0
+    PRIO_PICK = 1
+    PRIO_SHOW = 2
+    PRIO_SPLIT = 3
+    IDM_BID = 4  # and subsequent
 
 
 class EnergySource(models.TextChoices):

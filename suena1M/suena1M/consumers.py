@@ -5,6 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from random import shuffle
 from django.contrib import messages
 from django.forms.models import model_to_dict
+from time import sleep
 
 from .serializers import (
     GameSerializer,
@@ -24,6 +25,7 @@ from .models import (
     Player,
     PlayersCollectedDeck,
     PriorityDeck,
+    RoundPurpose,
     Table,
 )
 
@@ -71,7 +73,12 @@ class GameConsumer(WebsocketConsumer):
 
         if action == Action.PRIO_PICK.label:
             print(Action.PRIO_PICK.label, payload)
-            pass  # optional
+            deckId = None
+            if "deckId" in payload:
+                deckId = payload["deckId"]
+                self.prio_pick(highest_bidder_id=acting_player.get("id"), deckId=deckId)
+            else:
+                print("could not find deckId in payload")
 
         if action == Action.PRIO_SPLIT.label:
             print(Action.PRIO_SPLIT.label, payload)
@@ -80,12 +87,6 @@ class GameConsumer(WebsocketConsumer):
         if action == Action.IDM_BID.label:
             print(Action.IDM_BID.label, payload)
             pass
-
-        # Send message to room group
-        # async_to_sync(self.channel_layer.group_send)(
-        #     self.game_group_name,
-        #     {"type": "chat_message", "message": message},
-        # )
 
     # Receive message from room group
     def game(self, payload):
@@ -118,24 +119,15 @@ class GameConsumer(WebsocketConsumer):
         if "dam_highest_value" in payload:
             bidding_done = payload["dam_bidding_done"]
             highest_bidder_id = payload["dam_highest_bidder_id"]
-            selected_prio_deck = 0
-            if bidding_done:
-                game_instance.round_hour_number += 1
-                if players_count > 2:
-                    selected_prio_deck = 1
-                    game_instance.round_hour_number += 1
-                # if players_count > 2:
-                #     priority_decks = game_instance.prioritydeck_set.all()
-                #     priority_deck1_cards = Card.objects.filter(
-                #         location=priority_decks[0].id
-                #     )
-                #     for card in priority_deck1_cards:
-                #         card.location = highest_bidder_id
-                #         card.save()
-                #     players_cards = Card.objects.filter(location=player["id"])
-                #     game_instance.round_hour_number += 1
-                game_instance.save()
-                game_json = GameSerializer(game_instance).data
+            # selected_prio_deck = 0
+            # if bidding_done:
+            #     game_instance.round_hour_number += 1
+            #     # if players_count > 2:
+            #     #     selected_prio_deck = 1
+            #     #     game_instance.round_hour_number += 1
+            #     #     self.prio_pick(deckId=selected_prio_deck)
+            #     game_instance.save()
+            #     game_json = GameSerializer(game_instance).data
 
             highest_value = payload["dam_highest_value"]
             highest_bidder_name = payload["dam_highest_bidder_name"]
@@ -143,7 +135,7 @@ class GameConsumer(WebsocketConsumer):
                 "registered": user_is_player,
                 "game": game_json,
                 "player": player,
-                "selected_prio_deck": selected_prio_deck,
+                # "selected_prio_deck": selected_prio_deck,
                 # "players_cards": CardSerializer(players_cards, many=True).data,
                 "message": message,
                 "level": level,
@@ -155,7 +147,17 @@ class GameConsumer(WebsocketConsumer):
                 "ASGI": True,
             }
             self.send(text_data=json.dumps({"context": context}))
+            if players_count > 2:
+                selected_prio_deck = 1
+                # game_instance.round_hour_number += 1
+                self.prio_pick(
+                    deckId=selected_prio_deck, highest_bidder_id=highest_bidder_id
+                )
             return
+
+        selected_prio_deck = 0
+        if "selected_prio_deck" in payload:
+            selected_prio_deck = payload["selected_prio_deck"]
 
         if not game_instance.is_started():
             context = {
@@ -173,7 +175,7 @@ class GameConsumer(WebsocketConsumer):
             return
 
         dam_highest_value = 100
-        if game_instance.round_hour_number == 0:
+        if game_instance.round_hour_number == RoundPurpose.DAM_BID.value:
             for p in players:
                 if p.dam is not None and p.dam > dam_highest_value:
                     dam_highest_value = p.dam
@@ -212,6 +214,7 @@ class GameConsumer(WebsocketConsumer):
             "players_count": players_count,
             "ready_to_start": ready_to_start,
             "dam_highest_value": dam_highest_value,
+            "selected_prio_deck": selected_prio_deck,
             "ASGI": True,
         }
         self.send(text_data=json.dumps({"context": context}))
@@ -328,25 +331,115 @@ class GameConsumer(WebsocketConsumer):
         highest_bidder_id = None
         highest_bidder_name = None
         for player in players:
+            if player.dam is not None and player.dam > highest_value:
+                highest_value = player.dam
+                highest_bidder_id = player.id
+                highest_bidder_name = player.name
+
+        if value == 0 and highest_bidder_id == game.turn_day_player:
+            context = {
+                "message": "Du kannst nicht passen, du bist diese Runde drann und es hat dich noch keiner überboten.",
+                "level": 3,
+                "messageOnly": True,
+            }
+            self.send(text_data=json.dumps({"context": context}))
+            return
+
+        if value == 0 and highest_bidder_id == acting_player.get("id"):
+            context = {
+                "message": "Du kannst nicht passen, du bist aktuell der Meistbietende!",
+                "level": 3,
+                "messageOnly": True,
+            }
+            self.send(text_data=json.dumps({"context": context}))
+            return
+
+        for player in players:
             if player.id == acting_player.get("id"):
                 player.dam = value
                 player.save()
             if player.dam is not None:
                 if player.dam == 0:
                     pass_count += 1
-                if player.dam > highest_value:
-                    highest_value = player.dam
-                    highest_bidder_id = player.id
-                    highest_bidder_name = player.name
+
+        dam_bidding_done = pass_count + 1 == len(players)
+        if dam_bidding_done:
+            game.turn_hour_player = highest_bidder_id
+            game.round_hour_number = RoundPurpose.PRIO_PICK.value
+            game.save()
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.game_group_name,
             {
                 "type": "game",
-                "dam_bidding_done": pass_count + 1 == len(players),
+                "dam_bidding_done": dam_bidding_done,
                 "dam_highest_value": highest_value,
                 "dam_highest_bidder_id": highest_bidder_id,
                 "dam_highest_bidder_name": highest_bidder_name,
+            },
+        )
+
+    def prio_pick(self, deckId, highest_bidder_id):
+        game = Game.objects.get(slug=self.game_name)
+        deckId = int(deckId)
+        if deckId != 1 and deckId != 2:
+            print(f"prio_pick received bad value {deckId}!")
+            return
+
+        if not game.is_started():
+            print(f"game {game.name} has not started yet!")
+            return
+
+        print(f"plyer with id {highest_bidder_id} picked {deckId} in game: {game.name}")
+        game.round_hour_number = RoundPurpose.PRIO_SPLIT.value
+        game.save()
+
+        # Send message to room group
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_group_name,
+            {
+                "type": "game",
+                "selected_prio_deck": deckId,
+            },
+        )
+
+        print("wait for 5 seconds before consuming the picked priority deck")
+        sleep(5)
+        print("ok, now consume the deck")
+
+        self.prio_consume(
+            game=game, dam_player_id=highest_bidder_id, selected_prio_deck=deckId
+        )
+
+    def prio_consume(self, game, dam_player_id, selected_prio_deck):
+
+        priority_decks = game.prioritydeck_set.all()
+        priority_deck_cards = Card.objects.filter(
+            location=priority_decks[selected_prio_deck - 1].id
+        )
+        player = Player.objects.get(id=dam_player_id)
+        for card in priority_deck_cards:
+            card.location = player
+            card.save()
+
+        if len(priority_decks) == 2:
+            card_deck = game.globalcarddeck_set.first()
+            other_deck = 1 if selected_prio_deck == 2 else 2
+            other_deck_cards = Card.objects.filter(
+                location=priority_decks[other_deck - 1].id
+            )
+            for card in other_deck_cards:
+                card.location = card_deck
+                card.save()
+
+        game.round_hour_number = RoundPurpose.PRIO_SPLIT.value
+        game.save()
+
+        # Send message to room group
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_group_name,
+            {
+                "type": "game",
             },
         )

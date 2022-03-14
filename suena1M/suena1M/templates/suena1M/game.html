@@ -3,6 +3,19 @@
 {% block content %}
 {% if object %}
     <h1>Spiel: {{ object.name }}</h1>
+    <div class="players-name">
+        <h2>Angemeldeter Spieler</h2>
+    </div>
+    <div class="round-players-name">
+        <h2>Spielender Spieler</h2>
+    </div>
+    <div class="round-hour-description">
+        <h3>Willkommen</h3>
+    </div>
+    <div class="round-day-description">
+        <h4>Tag 1</h4>
+    </div>
+    <h2></h2>
     <div>
         <a href="{% url 'index' %}">Zurück</a>
         |
@@ -205,6 +218,7 @@
     let players_turn = false;
     let round_hour_number = 0;
     let dam_highest_value = 100;
+    let splitted_cards_count = 0;
     const ready_to_start_text = "Das Spiel könnte jetzt gestartet werden, wir brauchen 2-4 Mitspieler und haben bereits";
     const registration_pending_text = "Warte auf weitere Mitspieler. Aktuell sind es: ";
     console.log("gameSlug: " + gameSlug);
@@ -278,11 +292,16 @@
             
     function play_idm_inner(cardId) {
         console.log(`die karte ${cardId} wurde ausgewählt`);
+        if (splitted_cards_count >= 2) {
+            showAlert("Du hast schon genug karten abgegeben", 2);
+            return;
+        } 
         const action = "IDM_BID";
         gameSocket.send(JSON.stringify({
             'action': action,
             'player': player,
             'card': cardId,
+            'splitted_cards_count': splitted_cards_count,
         }));
     };
 
@@ -341,6 +360,28 @@
         document.getElementById('da-bid').disabled = value < dam_highest_value;
     };
 
+    function derive_round_hour_name(value) {
+        switch(value) {
+            case null: 
+                return "Willkommen";
+            case 0: 
+                return "Day Ahead Market Bid"
+            case 1: 
+                return "Wahl des Day Ahead Vorteils"
+            case 2: 
+                return "Präsentation des Day Ahead Vorteils"
+            case 3: 
+                return "Abgabe überschüssiger Ressourcen"
+        }
+        if (value > 3) {
+            return `${(value + 5) % 24} Intraday Market Bid`
+        }
+    }
+
+    function derive_round_day_name(value) {
+        return `Tag ${(value + 1)}`
+    }
+
     function connect() {
         gameSocket.onopen = function open() {
             console.log('WebSockets connection created.');
@@ -371,9 +412,12 @@
                 document.getElementById('game_started').hidden = !game["started"];
                 document.getElementById('game_not_started').hidden = game["started"];
                 document.getElementById('round_0_dam').hidden = round_hour_number != 0;
+                document.querySelector('.round-hour-description h3').firstChild.nodeValue = "Rundenziel: " + derive_round_hour_name(game["round_hour_number"]);
+                document.querySelector('.round-day-description h4').firstChild.nodeValue = derive_round_day_name(game["round_day_number"]);
             }
             player = data['context']['player'];
             if (player) {
+                document.querySelector('.players-name h2').firstChild.nodeValue = `Angemeldeter Spieler: ${player['name']}`;
                 if (player['id'] == game["turn_hour_player"]) {
                     players_turn = true;
                     showAlert("Du bist drann", 1);
@@ -535,6 +579,7 @@
                     showAlert(`${dam_highest_bidder_name} hat die Day Ahead Market Auktion mit einen Gebot von ${dam_highest_value} gewonnen!`, 1);
                 }
             }
+            splitted_cards_count = data['context']["splitted_cards_count"];
         };
 
         gameSocket.onclose = function(e) {

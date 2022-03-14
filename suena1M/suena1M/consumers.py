@@ -82,7 +82,23 @@ class GameConsumer(WebsocketConsumer):
 
         if action == Action.PRIO_SPLIT.label:
             print(Action.PRIO_SPLIT.label, payload)
-            pass
+            splitted_cards_count = 0
+            card_to_pass_id = None
+            if "splitted_cards_count" not in payload:
+                splitted_cards_count = payload["splitted_cards_count"]
+            else:
+                print("could not find splitted_cards_count in payload")
+
+            if "card" not in payload:
+                card_to_pass_id = payload["card"]
+            else:
+                print("could not find card in payload")
+
+            self.prio_split(
+                card_to_pass_id=card_to_pass_id,
+                highest_bidder_id=acting_player.get("id"),
+                splitted_cards_count=splitted_cards_count,
+            )
 
         if action == Action.IDM_BID.label:
             print(Action.IDM_BID.label, payload)
@@ -116,27 +132,18 @@ class GameConsumer(WebsocketConsumer):
             players_cards = Card.objects.filter(location=player["id"])
 
         # round_hour_number
-        if "dam_highest_value" in payload:
+        if (
+            game_instance.round_hour_number == RoundPurpose.DAM_BID
+            and "dam_highest_value" in payload
+        ):
             bidding_done = payload["dam_bidding_done"]
             highest_bidder_id = payload["dam_highest_bidder_id"]
-            # selected_prio_deck = 0
-            # if bidding_done:
-            #     game_instance.round_hour_number += 1
-            #     # if players_count > 2:
-            #     #     selected_prio_deck = 1
-            #     #     game_instance.round_hour_number += 1
-            #     #     self.prio_pick(deckId=selected_prio_deck)
-            #     game_instance.save()
-            #     game_json = GameSerializer(game_instance).data
-
             highest_value = payload["dam_highest_value"]
             highest_bidder_name = payload["dam_highest_bidder_name"]
             context = {
                 "registered": user_is_player,
                 "game": game_json,
                 "player": player,
-                # "selected_prio_deck": selected_prio_deck,
-                # "players_cards": CardSerializer(players_cards, many=True).data,
                 "message": message,
                 "level": level,
                 "players": PlayerSerializer(players, many=True).data,
@@ -149,7 +156,6 @@ class GameConsumer(WebsocketConsumer):
             self.send(text_data=json.dumps({"context": context}))
             if players_count > 2:
                 selected_prio_deck = 1
-                # game_instance.round_hour_number += 1
                 self.prio_pick(
                     deckId=selected_prio_deck, highest_bidder_id=highest_bidder_id
                 )
@@ -392,7 +398,7 @@ class GameConsumer(WebsocketConsumer):
             return
 
         print(f"plyer with id {highest_bidder_id} picked {deckId} in game: {game.name}")
-        game.round_hour_number = RoundPurpose.PRIO_SPLIT.value
+        game.round_hour_number = RoundPurpose.PRIO_SHOW.value
         game.save()
 
         # Send message to room group
@@ -441,5 +447,24 @@ class GameConsumer(WebsocketConsumer):
             self.game_group_name,
             {
                 "type": "game",
+                "splitted_cards_count": 0,
             },
         )
+
+    def prio_split(self, card_to_pass_id, highest_bidder_id, splitted_cards_count):
+        game = Game.objects.get(slug=self.game_name)
+
+    def get_next_player(self, game, day=False) -> Player:
+        players = list(game.player_set.all())
+        if day:
+            hour_day_player_id = game.turn_day_player
+            for i in range(len(players)):
+                if players[i].id == hour_day_player_id:
+                    j = (i + 1) % len(players)
+                    return players[j]
+
+        hour_round_player_id = game.turn_hour_player
+        for i in range(len(players)):
+            if players[i].id == hour_round_player_id:
+                j = (i + 1) % len(players)
+                return players[j]

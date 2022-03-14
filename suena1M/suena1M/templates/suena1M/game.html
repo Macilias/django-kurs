@@ -374,7 +374,7 @@
                 return "Abgabe überschüssiger Ressourcen"
         }
         if (value > 3) {
-            return `${(value + 5) % 24} Intraday Market Bid`
+            return `${(value + 4) % 24}:00 Uhr Intraday Market Bid`
         }
     }
 
@@ -407,6 +407,7 @@
             const game = data['context']['game'];
             if (game) {
                 round_hour_number = game["round_hour_number"]
+                splitted_cards_count = game["splitted_cards_count"]
                 document.getElementById('game_active').hidden = !game["active"];
                 document.getElementById('game_not_active').hidden = game["active"];
                 document.getElementById('game_started').hidden = !game["started"];
@@ -583,7 +584,6 @@
                     showAlert(`${dam_highest_bidder_name} hat die Day Ahead Market Auktion mit einen Gebot von ${dam_highest_value} gewonnen!`, 1);
                 }
             }
-            splitted_cards_count = data['context']["splitted_cards_count"];
         };
 
         gameSocket.onclose = function(e) {

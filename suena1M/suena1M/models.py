@@ -51,6 +51,7 @@ class Game(models.Model):
     round_day_number = models.IntegerField(default=0)
     turn_hour_player = models.IntegerField(default=0)
     turn_day_player = models.IntegerField(default=0)
+    splitted_cards_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     started = models.BooleanField(default=False)
     current_domination = models.CharField(

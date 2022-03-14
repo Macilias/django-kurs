@@ -82,22 +82,16 @@ class GameConsumer(WebsocketConsumer):
 
         if action == Action.PRIO_SPLIT.label:
             print(Action.PRIO_SPLIT.label, payload)
-            splitted_cards_count = 0
-            card_to_pass_id = None
-            if "splitted_cards_count" not in payload:
-                splitted_cards_count = payload["splitted_cards_count"]
-            else:
-                print("could not find splitted_cards_count in payload")
 
             if "card" not in payload:
-                card_to_pass_id = payload["card"]
-            else:
                 print("could not find card in payload")
+                return
+            else:
+                card_to_pass_id = payload["card"]
 
             self.prio_split(
                 card_to_pass_id=card_to_pass_id,
                 highest_bidder_id=acting_player.get("id"),
-                splitted_cards_count=splitted_cards_count,
             )
 
         if action == Action.IDM_BID.label:
@@ -204,8 +198,9 @@ class GameConsumer(WebsocketConsumer):
         print("table: ", table)
         table_cards = Card.objects.filter(location=table.id)
         print("table_cards: ", table_cards)
-        round_players = Player.objects.get(id=game_instance.round_hour_number)
+        round_players = Player.objects.get(id=game_instance.turn_hour_player)
         round_players_name = round_players.name
+
         context = {
             "registered": user_is_player,
             "game": game_json,
@@ -344,7 +339,7 @@ class GameConsumer(WebsocketConsumer):
                 highest_bidder_id = player.id
                 highest_bidder_name = player.name
 
-        if value == 0 and highest_bidder_id == game.turn_day_player:
+        if value == 0 and acting_player.get("id") == game.turn_day_player:
             context = {
                 "message": "Du kannst nicht passen, du bist diese Runde drann und es hat dich noch keiner überboten.",
                 "level": 3,
@@ -453,16 +448,60 @@ class GameConsumer(WebsocketConsumer):
             },
         )
 
-    def prio_split(self, card_to_pass_id, highest_bidder_id, splitted_cards_count):
+    def prio_split(self, highest_bidder_id, card_to_pass_id):
         game = Game.objects.get(slug=self.game_name)
+        if game.splitted_cards_count >= 2:
+            print(
+                "enough cards has been splitted, the game should be in idm mode by now"
+            )
+            return
 
-    def get_next_player(self, game, day=False) -> Player:
+        # check if this card (still) belongs to the player that won the dam auction
+        card = Card.objects.get(id=card_to_pass_id)
+        if card.location.id != highest_bidder_id:
+            print(
+                f"the card {card_to_pass_id} does not belong (anymore) to the highest bidder {highest_bidder_id}!"
+            )
+            return
+
+        destination = None
+        message = None
+        players_count = game.player_set.count()
+        if players_count == 2:
+            destination = game.globalcarddeck_set.all().first()
+        else:
+            if game.splitted_cards_count == 0:
+                next_player = self.get_next_player(game)
+                destination = next_player
+            else:
+                over_next_player = self.get_next_player(game, 2)
+                destination = over_next_player
+
+        card = Card.objects.get(id=card_to_pass_id)
+        card.location = destination
+        card.save()
+        game.splitted_cards_count += 1
+        if game.splitted_cards_count >= 2:
+            # init IDM_BID
+            game.turn_hour_player = highest_bidder_id
+            game.round_hour_number = RoundPurpose.IDM_BID.value
+        game.save()
+
+        # Send message to room group
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_group_name,
+            {
+                "type": "game",
+            },
+        )
+
+    def get_next_player(self, game, day=False, step=1) -> Player:
         players = list(game.player_set.all())
         if day:
             hour_day_player_id = game.turn_day_player
             for i in range(len(players)):
                 if players[i].id == hour_day_player_id:
-                    j = (i + 1) % len(players)
+                    j = (i + step) % len(players)
                     return players[j]
 
         hour_round_player_id = game.turn_hour_player

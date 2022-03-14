@@ -204,7 +204,8 @@ class GameConsumer(WebsocketConsumer):
         print("table: ", table)
         table_cards = Card.objects.filter(location=table.id)
         print("table_cards: ", table_cards)
-
+        round_players = Player.objects.get(id=game_instance.round_hour_number)
+        round_players_name = round_players.name
         context = {
             "registered": user_is_player,
             "game": game_json,
@@ -218,6 +219,7 @@ class GameConsumer(WebsocketConsumer):
             "prio_deck2": CardSerializer(priority_deck2_cards, many=True).data,
             "table_deck": CardSerializer(table_cards, many=True).data,
             "players_count": players_count,
+            "round_players_name": round_players_name,
             "ready_to_start": ready_to_start,
             "dam_highest_value": dam_highest_value,
             "selected_prio_deck": selected_prio_deck,

@@ -7,7 +7,7 @@
         <h2>Angemeldeter Spieler</h2>
     </div>
     <div class="round-players-name">
-        <h2>Spielender Spieler</h2>
+        <h2>Spielender am Zug</h2>
     </div>
     <div class="round-hour-description">
         <h3>Willkommen</h3>
@@ -424,6 +424,10 @@
                 } else {
                     players_turn = false;
                 }
+            }
+            const roundPlayersName = data['context']['round_players_name'];
+            if (roundPlayersName) {
+                document.querySelector('.round-players-name h2').firstChild.nodeValue = `Spielender am Zug: ${roundPlayersName}`;
             }
             const registered = data['context']["registered"];
             document.getElementById('player_registered_1').hidden = !registered;

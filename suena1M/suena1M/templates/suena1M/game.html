@@ -292,10 +292,6 @@
             
     function play_idm_inner(cardId) {
         console.log(`die karte ${cardId} wurde ausgewählt`);
-        if (splitted_cards_count >= 2) {
-            showAlert("Du hast schon genug karten abgegeben", 2);
-            return;
-        } 
         const action = "IDM_BID";
         gameSocket.send(JSON.stringify({
             'action': action,
@@ -307,6 +303,10 @@
 
     function pass_inner(cardId) {
         console.log(`die karte ${cardId} wird abgegeben`);
+        if (splitted_cards_count >= 2) {
+            showAlert("Du hast schon genug karten abgegeben", 2);
+            return;
+        } 
         const action = "PRIO_SPLIT";
         gameSocket.send(JSON.stringify({
             'action': action,

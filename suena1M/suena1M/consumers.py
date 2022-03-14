@@ -82,7 +82,7 @@ class GameConsumer(WebsocketConsumer):
 
         if action == Action.PRIO_SPLIT.label:
             print(Action.PRIO_SPLIT.label, payload)
-
+            card_to_pass_id = None
             if "card" not in payload:
                 print("could not find card in payload")
                 return
@@ -96,7 +96,17 @@ class GameConsumer(WebsocketConsumer):
 
         if action == Action.IDM_BID.label:
             print(Action.IDM_BID.label, payload)
-            pass
+            card_to_play_id = None
+            if "card" not in payload:
+                print("could not find card in payload")
+                return
+            else:
+                card_to_play_id = payload["card"]
+
+            self.idm_bid(
+                card_to_play_id=card_to_play_id,
+                acting_player=acting_player,
+            )
 
     # Receive message from room group
     def game(self, payload):
@@ -509,3 +519,25 @@ class GameConsumer(WebsocketConsumer):
             if players[i].id == hour_round_player_id:
                 j = (i + 1) % len(players)
                 return players[j]
+
+    def idm_bid(self, acting_player, card_to_play_id):
+        game = Game.objects.get(slug=self.game_name)
+
+        card = Card.objects.get(id=card_to_play_id)
+        if card.location.id != acting_player.get("id"):
+            print(
+                f"the card {card_to_play_id} does not belong (anymore) to the player {acting_player.get('id')}!"
+            )
+            return
+
+        table = game.table_set.all().first()
+        card.location = table
+        card.save()
+
+        # Send message to room group
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_group_name,
+            {
+                "type": "game",
+            },
+        )

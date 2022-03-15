@@ -538,19 +538,34 @@ class GameConsumer(WebsocketConsumer):
         player = Player.objects.get(id=acting_player.get("id"))
         if player.last_played_round == game.round_hour_number:
             context = {
-                "message": "Du kannst hast diese Runde bereits deinen idm bid abgegeben",
+                "message": "Du hast diese Runde bereits deinen idm bid abgegeben",
                 "level": 2,
                 "messageOnly": True,
             }
             self.send(text_data=json.dumps({"context": context}))
             return
 
+        if game.current_domination and game.current_domination != card.source:
+            # check if user hold on to domianted source, if he has it, he must serve
+            dominating_sources_count = player.card_set.count(
+                source=game.current_domination
+            )
+            if dominating_sources_count:
+                context = {
+                    "message": f"Du kannst hast {card.source.label} Energiequelle anbieten, du hast noch {dominating_sources_count} Ressourcen der vom Markt verlangten {game.current_domination.label} Energie im Portfolio.",
+                    "level": 2,
+                    "messageOnly": True,
+                }
+                self.send(text_data=json.dumps({"context": context}))
+                return
+
         table = game.table_set.all().first()
         card.location = table
         card.save()
         player.last_played_round = game.round_hour_number
+        # optional_forecast_bonus also sets the current_domination value
         player.round_score += self.optional_forecast_bonus(
-            card=card, player_cards=player.card_set.all()
+            card=card, player_cards=player.card_set.all(), game=game
         )
         player.idm = card.value
         player.save()
@@ -569,23 +584,45 @@ class GameConsumer(WebsocketConsumer):
                 break
 
         if round_hour_ready:
+            # clear table
+            carddeck = game.globalcarddeck_set.all().first()
             # sum idm's define winner
-            highest_value = 0
+            highest_plain_value = 0
+            highest_dominating_value = 0
             highest_bidder = None
             value_sum = 0
             round_idms = table.card_set.all()
             for idm_bid in round_idms:
                 value_sum += idm_bid.value
-                if idm_bid.value > highest_value:
-                    highest_value = idm_bid.value
+                if idm_bid.value > highest_plain_value:
+                    highest_plain_value = idm_bid.value
+                if (
+                    game.current_domination
+                    and game.current_domination == idm_bid.source
+                    and idm_bid.value > highest_dominating_value
+                ):
+                    highest_dominating_value = idm_bid.value
+
+                idm_bid.location = carddeck
+                idm_bid.save()
+
+            highest_value = (
+                highest_dominating_value
+                if highest_dominating_value
+                else highest_plain_value
+            )
 
             for p in players:
-                if p.idm == card.value:
+                if p.idm == highest_value:
                     highest_bidder = p
-                    break
+                p.idm = None  # clear idm bid
+                p.save()
             # update round_score
             highest_bidder.round_score += value_sum
             highest_bidder.save()
+            # prepare next round starting point
+            game.turn_hour_player = highest_bidder.id
+            game.save()
 
         # if day ready
         round_day_ready = True
@@ -599,6 +636,7 @@ class GameConsumer(WebsocketConsumer):
             # reset round_hour_number
             game.round_hour_number = RoundPurpose.DAM_BID.value
             game.round_day_number += 1
+            game.turn_day_player = self.get_next_player(game=game, day=True).id
             # sum and reset game_score
             for p in players:
                 # edge case, dam player
@@ -606,6 +644,9 @@ class GameConsumer(WebsocketConsumer):
                     p.game_score += p.dam if p.dam >= p.round_score else -p.dam
                 else:
                     p.game_score += p.round_score
+                p.dam = None
+                p.round_score = 0
+                p.save()
             # deal new cards
             cards = list(game.card_set.all())
             shuffle(cards)

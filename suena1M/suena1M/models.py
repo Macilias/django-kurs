@@ -155,6 +155,9 @@ class Player(CardHolder):
     name = models.CharField(max_length=256)
     dam = models.IntegerField(null=True)
     idm = models.IntegerField(null=True)
+    idm_source = models.CharField(
+        max_length=1, choices=EnergySource.choices, blank=True, null=True
+    )
     round_score = models.IntegerField(default=0)
     game_score = models.IntegerField(default=0)
     last_played_round = models.IntegerField(default=0)

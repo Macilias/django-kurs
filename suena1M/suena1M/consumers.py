@@ -533,6 +533,8 @@ class GameConsumer(WebsocketConsumer):
         table = game.table_set.all().first()
         card.location = table
         card.save()
+        game.turn_hour_player = self.get_next_player(game=game).id
+        game.save()
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(

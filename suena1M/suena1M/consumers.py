@@ -27,6 +27,7 @@ from .models import (
     PriorityDeck,
     RoundPurpose,
     Table,
+    forecast_lookup,
 )
 
 
@@ -349,7 +350,11 @@ class GameConsumer(WebsocketConsumer):
                 highest_bidder_id = player.id
                 highest_bidder_name = player.name
 
-        if value == 0 and acting_player.get("id") == game.turn_day_player:
+        if (
+            value == 0
+            and acting_player.get("id") == game.turn_day_player
+            and highest_value == 100
+        ):
             context = {
                 "message": "Du kannst nicht passen, du bist diese Runde drann und es hat dich noch keiner überboten.",
                 "level": 3,
@@ -530,11 +535,93 @@ class GameConsumer(WebsocketConsumer):
             )
             return
 
+        player = Player.objects.get(id=acting_player.get("id"))
+        if player.last_played_round == game.round_hour_number:
+            context = {
+                "message": "Du kannst hast diese Runde bereits deinen idm bid abgegeben",
+                "level": 2,
+                "messageOnly": True,
+            }
+            self.send(text_data=json.dumps({"context": context}))
+            return
+
         table = game.table_set.all().first()
         card.location = table
         card.save()
+        player.last_played_round = game.round_hour_number
+        player.round_score += self.optional_forecast_bonus(
+            card=card, player_cards=player.card_set.all()
+        )
+        player.idm = card.value
+        player.save()
         game.turn_hour_player = self.get_next_player(game=game).id
         game.save()
+
+        # Check if round is done
+        players = game.player_set.all()
+        round_hour_ready = True
+        for p in players:
+            if p.last_played_round != game.round_hour_number:
+                # endge case, 4 players, one has one card less
+                if p.card_set.count() == 0:
+                    continue
+                round_hour_ready = False
+                break
+
+        if round_hour_ready:
+            # sum idm's define winner
+            highest_value = 0
+            highest_bidder = None
+            value_sum = 0
+            round_idms = table.card_set.all()
+            for idm_bid in round_idms:
+                value_sum += idm_bid.value
+                if idm_bid.value > highest_value:
+                    highest_value = idm_bid.value
+
+            for p in players:
+                if p.idm == card.value:
+                    highest_bidder = p
+                    break
+            # update round_score
+            highest_bidder.round_score += value_sum
+            highest_bidder.save()
+
+        # if day ready
+        round_day_ready = True
+        for p in players:
+            card_count = p.card_set.count()
+            if card_count > 0:
+                round_day_ready = False
+                break
+
+        if round_day_ready:
+            # reset round_hour_number
+            game.round_hour_number = RoundPurpose.DAM_BID.value
+            game.round_day_number += 1
+            # sum and reset game_score
+            for p in players:
+                # edge case, dam player
+                if p.dam:
+                    p.game_score += p.dam if p.dam >= p.round_score else -p.dam
+                else:
+                    p.game_score += p.round_score
+            # deal new cards
+            cards = list(game.card_set.all())
+            shuffle(cards)
+            shuffle(cards)
+            shuffle(cards)
+            priority_decks = game.prioritydeck_set.all()
+            prio_deck1 = priority_decks.first()
+            prio_deck2 = None
+            if len(players) == 2 and len(priority_decks) == 2:
+                prio_deck2 = prio_deck2[1]
+            self.deal_cards(
+                card_deck_cards=cards,
+                players=players,
+                prio_deck1=prio_deck1,
+                prio_deck2=prio_deck2,
+            )
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
@@ -543,3 +630,13 @@ class GameConsumer(WebsocketConsumer):
                 "type": "game",
             },
         )
+
+    def optional_forecast_bonus(self, card, player_cards, game) -> int:
+        if not card.forecast():
+            return 0
+        for c in player_cards:
+            if c.forecast() and c.forecast() != card.forecast():
+                game.current_domination = card.source
+                game.save()
+                return forecast_lookup[card.source]
+        return 0

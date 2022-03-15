@@ -33,6 +33,14 @@ class Forecast(models.TextChoices):
     MARKET = "M", "Market"
 
 
+forecast_lookup = {
+    EnergySource.SOLAR.value: 100,
+    EnergySource.WIND.value: 80,
+    EnergySource.CARBON.value: 60,
+    EnergySource.ATOMIC.value: 40,
+}
+
+
 class CardValue(models.IntegerChoices):
     NEUN = 0
     ZEHN = 10
@@ -149,6 +157,7 @@ class Player(CardHolder):
     idm = models.IntegerField(null=True)
     round_score = models.IntegerField(default=0)
     game_score = models.IntegerField(default=0)
+    last_played_round = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.name} is playing {self.game.name} game score: {self.game_score} id: {self.pk}"

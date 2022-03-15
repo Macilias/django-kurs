@@ -235,10 +235,13 @@
     function showAlert(message, level) {
         let messagesDiv = document.getElementById('messages-info');
         if (level == 1) {
+            $('messages-info').empty();            
             messagesDiv = document.getElementById('messages-success');
         } else if (level == 2) {
+            $('messages-warning').empty();  
             messagesDiv = document.getElementById('messages-warning');
         } else if (level == 3) {
+            $('messages-danger').empty();  
             messagesDiv = document.getElementById('messages-danger');
         }
         if (!messagesDiv) {
@@ -414,6 +417,9 @@
                 document.getElementById('game_not_started').hidden = game["started"];
                 document.getElementById('round_0_dam').hidden = round_hour_number != 0;
                 document.querySelector('.round-hour-description h3').firstChild.nodeValue = "Rundenziel: " + derive_round_hour_name(game["round_hour_number"]);
+                if (game['current_domination']) {
+                    document.querySelector('.round-hour-description h3').style.backgroundColor = game['current_domination'];
+                }
                 document.querySelector('.round-day-description h4').firstChild.nodeValue = derive_round_day_name(game["round_day_number"]);
             }
             player = data['context']['player'];
@@ -428,7 +434,7 @@
             }
             const roundPlayersName = data['context']['round_players_name'];
             if (roundPlayersName) {
-                document.querySelector('.round-players-name h2').firstChild.nodeValue = `Spielender am Zug: ${roundPlayersName}`;
+                document.querySelector('.round-players-name h2').firstChild.nodeValue = `Spieler am Zug: ${roundPlayersName}`;
             }
             const registered = data['context']["registered"];
             document.getElementById('player_registered_1').hidden = !registered;

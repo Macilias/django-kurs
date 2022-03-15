@@ -499,6 +499,8 @@
                     if (round_hour_number == 2 && selected_prio_deck == 1) {
                         style = `"background:${c['color_value']};"`;
                         label = `${c['value']}K<br>${c['forecast_value']}`;
+                    } else {
+                        console.log(`deck1: round_hour_number was: ${round_hour_number} and selected_prio_deck was: ${selected_prio_deck}`)
                     }
                     $('#prio_deck1').append(
                         `<div 
@@ -524,6 +526,8 @@
                     if (round_hour_number == 2 && selected_prio_deck == 2) {
                         style = `"background:${c['color_value']};"`;
                         label = `${c['value']}K<br>${c['forecast_value']}`;
+                    } else {
+                        console.log(`deck1: round_hour_number was: ${round_hour_number} and selected_prio_deck was: ${selected_prio_deck}`)
                     }
                     $('#prio_deck2').append(
                         `<div 

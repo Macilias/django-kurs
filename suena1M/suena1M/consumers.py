@@ -516,13 +516,13 @@ class GameConsumer(WebsocketConsumer):
             hour_day_player_id = game.turn_day_player
             for i in range(len(players)):
                 if players[i].id == hour_day_player_id:
-                    j = (i + step) % len(players)
+                    j = (i + step) % (len(players) - 1)
                     return players[j]
 
         hour_round_player_id = game.turn_hour_player
         for i in range(len(players)):
             if players[i].id == hour_round_player_id:
-                j = (i + 1) % len(players)
+                j = (i + 1) % (len(players) - 1)
                 return players[j]
 
     def idm_bid(self, acting_player, card_to_play_id):
@@ -536,7 +536,7 @@ class GameConsumer(WebsocketConsumer):
             return
 
         player = Player.objects.get(id=acting_player.get("id"))
-        if player.last_played_round == game.round_hour_number:
+        if player.idm is not None:
             context = {
                 "message": "Du hast diese Runde bereits deinen idm bid abgegeben",
                 "level": 2,
@@ -547,8 +547,8 @@ class GameConsumer(WebsocketConsumer):
 
         if game.current_domination and game.current_domination != card.source:
             # check if user hold on to domianted source, if he has it, he must serve
-            dominating_sources_count = player.card_set.count(
-                source=game.current_domination
+            dominating_sources_count = len(
+                player.card_set.all().filter(source=game.current_domination)
             )
             if dominating_sources_count:
                 context = {

@@ -516,13 +516,13 @@ class GameConsumer(WebsocketConsumer):
             hour_day_player_id = game.turn_day_player
             for i in range(len(players)):
                 if players[i].id == hour_day_player_id:
-                    j = (i + step) % (len(players) - 1)
+                    j = (i + step) % len(players)
                     return players[j]
 
         hour_round_player_id = game.turn_hour_player
         for i in range(len(players)):
             if players[i].id == hour_round_player_id:
-                j = (i + 1) % (len(players) - 1)
+                j = (i + 1) % len(players)
                 return players[j]
 
     def idm_bid(self, acting_player, card_to_play_id):
@@ -552,7 +552,7 @@ class GameConsumer(WebsocketConsumer):
             )
             if dominating_sources_count:
                 context = {
-                    "message": f"Du kannst hast {card.source.label} Energiequelle anbieten, du hast noch {dominating_sources_count} Ressourcen der vom Markt verlangten {game.current_domination.label} Energie im Portfolio.",
+                    "message": f"Du kannst {EnergySource(card.source).label} Energiequelle anbieten, du hast noch {dominating_sources_count} Ressourcen der vom Markt verlangten {EnergySource(game.current_domination).label} Energie im Portfolio.",
                     "level": 2,
                     "messageOnly": True,
                 }
@@ -576,7 +576,7 @@ class GameConsumer(WebsocketConsumer):
         players = game.player_set.all()
         round_hour_ready = True
         for p in players:
-            if p.last_played_round != game.round_hour_number:
+            if p.idm is None:
                 # endge case, 4 players, one has one card less
                 if p.card_set.count() == 0:
                     continue
@@ -637,6 +637,7 @@ class GameConsumer(WebsocketConsumer):
             game.round_hour_number = RoundPurpose.DAM_BID.value
             game.round_day_number += 1
             game.turn_day_player = self.get_next_player(game=game, day=True).id
+            game.save()
             # sum and reset game_score
             for p in players:
                 # edge case, dam player
